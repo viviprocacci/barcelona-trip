@@ -1,5 +1,15 @@
 import { useMemo, useState } from "react";
-import { Clock, DollarSign, ExternalLink, Loader2, MapPin, Search, Sparkles, X } from "lucide-react";
+import {
+  Clock,
+  Compass,
+  DollarSign,
+  ExternalLink,
+  Loader2,
+  MapPin,
+  Search,
+  Sparkles,
+  X,
+} from "lucide-react";
 import {
   EXCURSION_CATEGORIES,
   EXCURSION_REGIONS,
@@ -28,12 +38,20 @@ const SEARCH_TYPES: { id: SearchType; label: string }[] = [
   { id: "deal", label: "Deals" },
 ];
 
-const HOTEL_SUGGESTIONS = [
+const SEARCH_IDEAS = [
+  "Acatenango tour deals",
+  "Fly fishing Lake Atitlán",
   "Antigua hostel under $25",
-  "La Casa del Mundo",
-  "Panajachel hotel",
-  "Antigua boutique hotel",
+  "Whitewater rafting",
 ];
+
+const QUICK_FILTERS = [
+  { id: "route", label: "On your trip", icon: Sparkles },
+  { id: "budget", label: "Budget", icon: DollarSign },
+  { id: "adrenaline", label: "Adrenaline", icon: Compass },
+] as const;
+
+type QuickFilter = (typeof QUICK_FILTERS)[number]["id"] | null;
 
 function matchLocal(query: string, type: SearchType): Excursion[] {
   const q = query.toLowerCase().trim();
@@ -46,9 +64,27 @@ function matchLocal(query: string, type: SearchType): Excursion[] {
   });
 }
 
+function applyBrowseFilters(
+  category: ExcursionCategory | "all",
+  region: string,
+  quick: QuickFilter,
+): Excursion[] {
+  return EXCURSIONS.filter((e) => {
+    if (quick === "route" && !e.onYourRoute) return false;
+    if (quick === "budget" && e.priceTier !== "budget") return false;
+    if (quick === "adrenaline" && e.category !== "adrenaline") return false;
+
+    if (category !== "all" && e.category !== category) return false;
+    if (region === "On your route" && !e.onYourRoute) return false;
+    if (region !== "All regions" && region !== "On your route" && e.region !== region) return false;
+    return true;
+  });
+}
+
 export function ExploreView() {
   const [category, setCategory] = useState<ExcursionCategory | "all">("all");
   const [region, setRegion] = useState<string>("All regions");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   const [selected, setSelected] = useState<Excursion | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,19 +98,28 @@ export function ExploreView() {
   const { context, budget } = useChatContext();
   const { enabled: aiEnabled } = useAiEnabled();
 
-  const filtered = useMemo(() => {
-    if (activeSearch) {
-      return matchLocal(activeSearch, searchType);
-    }
+  const isSearching = activeSearch !== null;
 
-    return EXCURSIONS.filter((e) => {
-      if (category !== "all" && e.category !== category) return false;
-      if (region === "On your route" && !e.onYourRoute) return false;
-      if (region !== "All regions" && region !== "On your route" && e.region !== region)
-        return false;
-      return true;
-    });
-  }, [category, region, activeSearch, searchType]);
+  const filtered = useMemo(() => {
+    if (isSearching) return matchLocal(activeSearch, searchType);
+    return applyBrowseFilters(category, region, quickFilter);
+  }, [category, region, quickFilter, activeSearch, searchType, isSearching]);
+
+  const browseGroups = useMemo(() => {
+    if (isSearching) return null;
+    const showSplit =
+      category === "all" &&
+      region === "All regions" &&
+      !quickFilter &&
+      filtered.some((e) => e.onYourRoute);
+
+    if (!showSplit) return { onRoute: [] as Excursion[], rest: filtered };
+
+    return {
+      onRoute: filtered.filter((e) => e.onYourRoute),
+      rest: filtered.filter((e) => !e.onYourRoute),
+    };
+  }, [filtered, category, region, quickFilter, isSearching]);
 
   const runSearch = async (query: string, type: SearchType = searchType) => {
     const q = query.trim();
@@ -87,7 +132,7 @@ export function ExploreView() {
     setAiMessage(null);
 
     if (!aiEnabled) {
-      setAiMessage("Curated matches below. Add ANTHROPIC_API_KEY to .env (or Vercel) for AI deal & hotel search.");
+      setAiMessage("Curated matches below. AI search needs ANTHROPIC_API_KEY on the server.");
       return;
     }
     if (!budget.canUse) {
@@ -127,12 +172,21 @@ export function ExploreView() {
     setSearchedWeb(false);
   };
 
-  const adrenalineCount = EXCURSIONS.filter((e) => e.category === "adrenaline").length;
-  const fishingCount = EXCURSIONS.filter((e) => e.category === "fishing").length;
+  const toggleQuick = (id: QuickFilter) => {
+    setQuickFilter((prev) => (prev === id ? null : id));
+    if (id === "route") setRegion("All regions");
+  };
 
   return (
     <div className="explore-view">
-      <div className="explore-search-box">
+      <header className="explore-hero">
+        <div className="explore-hero-text">
+          <h2 className="explore-hero-title">Explore</h2>
+          <p className="explore-hero-sub">
+            {EXCURSIONS.length} curated picks · AI deal search
+          </p>
+        </div>
+
         <form
           className="explore-search-form"
           onSubmit={(e) => {
@@ -144,144 +198,179 @@ export function ExploreView() {
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search activities, hotels, deals…"
+            placeholder="Search tours, hotels, deals…"
             aria-label="Search explore"
           />
-          <button type="submit" className="explore-search-btn" disabled={searchLoading || !searchQuery.trim()}>
-            {searchLoading ? <Loader2 size={16} className="spin" /> : "Go"}
+          <button
+            type="submit"
+            className="explore-search-btn"
+            disabled={searchLoading || !searchQuery.trim()}
+          >
+            {searchLoading ? <Loader2 size={16} className="spin" /> : "Search"}
           </button>
         </form>
+      </header>
 
-        <div className="explore-search-types">
-          {SEARCH_TYPES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`phrase-tab ${searchType === t.id ? "active" : ""}`}
-              onClick={() => setSearchType(t.id)}
-            >
-              {t.label}
+      {isSearching ? (
+        <section className="explore-panel explore-panel--search">
+          <div className="explore-panel-head">
+            <div>
+              <span className="explore-panel-eyebrow">AI search</span>
+              <h3 className="explore-panel-title">"{activeSearch}"</h3>
+            </div>
+            <button type="button" className="explore-clear-btn" onClick={clearSearch}>
+              <X size={14} /> Clear
             </button>
-          ))}
-        </div>
+          </div>
 
-        {searchType === "hotel" && !activeSearch && (
-          <div className="explore-suggestions">
-            {HOTEL_SUGGESTIONS.map((s) => (
-              <button key={s} type="button" className="quick-btn" onClick={() => runSearch(s, "hotel")}>
-                {s}
+          <div className="explore-search-types">
+            {SEARCH_TYPES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`explore-chip ${searchType === t.id ? "active" : ""}`}
+                onClick={() => {
+                  setSearchType(t.id);
+                  if (activeSearch) runSearch(activeSearch, t.id);
+                }}
+              >
+                {t.label}
               </button>
             ))}
           </div>
-        )}
 
-        {activeSearch && (
-          <button type="button" className="explore-clear-search" onClick={clearSearch}>
-            Clear search · show all
-          </button>
-        )}
-      </div>
+          {searchLoading && (
+            <p className="explore-ai-loading">Searching web + comparing prices…</p>
+          )}
 
-      {searchLoading && (
-        <p className="explore-ai-loading">Searching web + comparing prices…</p>
-      )}
+          {aiStructured && (
+            <ExploreAiResults
+              data={aiStructured}
+              query={activeSearch ?? ""}
+              searchedWeb={searchedWeb}
+            />
+          )}
 
-      {aiStructured && (
-        <ExploreAiResults data={aiStructured} query={activeSearch ?? ""} searchedWeb={searchedWeb} />
-      )}
+          {aiMessage && !aiStructured && (
+            <p className="explore-ai-message">{aiMessage}</p>
+          )}
 
-      {aiMessage && !aiStructured && (
-        <p className="explore-ai-message">{aiMessage}</p>
-      )}
+          {filtered.length > 0 && (
+            <>
+              <p className="explore-section-label">
+                From our list · {filtered.length}
+              </p>
+              <div className="explore-list">
+                {filtered.map((exc) => (
+                  <ExcursionCard key={exc.id} exc={exc} onOpen={setSelected} />
+                ))}
+              </div>
+            </>
+          )}
 
-      {!activeSearch && (
+          {filtered.length === 0 && !searchLoading && aiStructured && (
+            <p className="explore-empty">No curated matches for this search.</p>
+          )}
+        </section>
+      ) : (
         <>
-          <p className="explore-intro">
-            {EXCURSIONS.length} picks · {adrenalineCount} adrenaline · {fishingCount} fishing
-          </p>
-          <div className="explore-quick-vibes">
-            <button
-              type="button"
-              className={`vibe-pill ${category === "adrenaline" ? "active" : ""}`}
-              onClick={() => setCategory(category === "adrenaline" ? "all" : "adrenaline")}
-            >
-              Adrenaline
-            </button>
-            <button
-              type="button"
-              className={`vibe-pill ${category === "fishing" ? "active" : ""}`}
-              onClick={() => setCategory(category === "fishing" ? "all" : "fishing")}
-            >
-              Fishing
-            </button>
-            <button
-              type="button"
-              className={`vibe-pill ${region === "On your route" ? "active" : ""}`}
-              onClick={() => setRegion(region === "On your route" ? "All regions" : "On your route")}
-            >
-              On your trip
-            </button>
-          </div>
-        </>
-      )}
+          <section className="explore-panel explore-panel--ideas">
+            <span className="explore-panel-eyebrow">Try searching</span>
+            <div className="explore-ideas">
+              {SEARCH_IDEAS.map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  className="explore-idea-btn"
+                  onClick={() => runSearch(idea)}
+                >
+                  {idea}
+                </button>
+              ))}
+            </div>
+          </section>
 
-      <div className="explore-filters">
-        {!activeSearch && (
-          <>
-            <div className="phrase-tabs">
+          <section className="explore-panel explore-panel--filters">
+            <span className="explore-panel-eyebrow">Browse</span>
+
+            <div className="explore-quick-row">
+              {QUICK_FILTERS.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`explore-quick-btn ${quickFilter === id ? "active" : ""}`}
+                  onClick={() => toggleQuick(id)}
+                >
+                  <Icon size={13} />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="explore-chip-row">
               {EXCURSION_CATEGORIES.map((c) => (
                 <button
                   key={c.id}
                   type="button"
-                  className={`phrase-tab ${category === c.id ? "active" : ""}`}
+                  className={`explore-chip ${category === c.id ? "active" : ""}`}
                   onClick={() => setCategory(c.id)}
                 >
                   {c.label}
                 </button>
               ))}
             </div>
-            <select
-              className="explore-region-select"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              aria-label="Filter by region"
-            >
+
+            <div className="explore-chip-row explore-chip-row--muted">
               {EXCURSION_REGIONS.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <button
+                  key={r}
+                  type="button"
+                  className={`explore-chip explore-chip--sm ${region === r ? "active" : ""}`}
+                  onClick={() => {
+                    setRegion(r);
+                    if (r === "On your route") setQuickFilter(null);
+                  }}
+                >
+                  {r}
+                </button>
               ))}
-            </select>
-          </>
-        )}
-      </div>
+            </div>
+          </section>
 
-      {activeSearch && filtered.length > 0 && (
-        <p className="explore-section-label">From our curated list</p>
+          <section className="explore-panel explore-panel--list">
+            {browseGroups && browseGroups.onRoute.length > 0 && (
+              <>
+                <p className="explore-section-label">
+                  <Sparkles size={11} /> On your trip · {browseGroups.onRoute.length}
+                </p>
+                <div className="explore-list">
+                  {browseGroups.onRoute.map((exc) => (
+                    <ExcursionCard key={exc.id} exc={exc} onOpen={setSelected} />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {browseGroups && browseGroups.rest.length > 0 && (
+              <>
+                <p className="explore-section-label">
+                  {browseGroups.onRoute.length > 0 ? "More to explore" : "All picks"} ·{" "}
+                  {browseGroups.rest.length}
+                </p>
+                <div className="explore-list">
+                  {browseGroups.rest.map((exc) => (
+                    <ExcursionCard key={exc.id} exc={exc} onOpen={setSelected} />
+                  ))}
+                </div>
+              </>
+            )}
+
+            {filtered.length === 0 && (
+              <p className="explore-empty">No matches — try another filter.</p>
+            )}
+          </section>
+        </>
       )}
-
-      <div className="explore-list">
-        {filtered.map((exc) => (
-          <button key={exc.id} type="button" className="explore-card" onClick={() => setSelected(exc)}>
-            <div className="explore-card-top">
-              <span className={`price-tier price-tier--${exc.priceTier}`}>{TIER_LABEL[exc.priceTier]}</span>
-              {exc.onYourRoute && (
-                <span className="on-route-badge"><Sparkles size={10} /> On your trip</span>
-              )}
-            </div>
-            <h3>{exc.name}</h3>
-            <p className="explore-tagline">{exc.tagline}</p>
-            <div className="explore-card-meta">
-              <span><MapPin size={12} /> {exc.region}</span>
-              <span><DollarSign size={12} /> {exc.priceLabel}</span>
-              <span><Clock size={12} /> {exc.duration}</span>
-            </div>
-          </button>
-        ))}
-        {filtered.length === 0 && !searchLoading && (
-          <p className="explore-empty">
-            {activeSearch ? "No curated matches — check AI results above." : "No matches — try a different filter."}
-          </p>
-        )}
-      </div>
 
       {selected && (
         <ExploreModal
@@ -298,6 +387,42 @@ export function ExploreView() {
   );
 }
 
+function ExcursionCard({
+  exc,
+  onOpen,
+}: {
+  exc: Excursion;
+  onOpen: (exc: Excursion) => void;
+}) {
+  return (
+    <button type="button" className="explore-card" onClick={() => onOpen(exc)}>
+      <div className="explore-card-top">
+        <span className={`price-tier price-tier--${exc.priceTier}`}>
+          {TIER_LABEL[exc.priceTier]}
+        </span>
+        {exc.onYourRoute && (
+          <span className="on-route-badge">
+            <Sparkles size={10} /> On your trip
+          </span>
+        )}
+      </div>
+      <h3>{exc.name}</h3>
+      <p className="explore-tagline">{exc.tagline}</p>
+      <div className="explore-card-meta">
+        <span>
+          <MapPin size={12} /> {exc.region}
+        </span>
+        <span>
+          <DollarSign size={12} /> {exc.priceLabel}
+        </span>
+        <span>
+          <Clock size={12} /> {exc.duration}
+        </span>
+      </div>
+    </button>
+  );
+}
+
 function ExploreAiResults({
   data,
   query,
@@ -310,10 +435,10 @@ function ExploreAiResults({
   let lastGroup: string | undefined;
 
   return (
-    <section className="explore-ai-result">
+    <div className="explore-ai-block">
       <div className="explore-ai-result-head">
-        <strong>{data.title || `AI picks for "${query}"`}</strong>
-        {searchedWeb && <span className="deals-web-badge">Live web results</span>}
+        <strong>{data.title || `Results for "${query}"`}</strong>
+        {searchedWeb && <span className="deals-web-badge">Live web</span>}
       </div>
 
       {data.intro && <p className="explore-ai-intro">{data.intro}</p>}
@@ -366,7 +491,7 @@ function ExploreAiResults({
       </div>
 
       {data.footer && <p className="explore-ai-footer">{data.footer}</p>}
-    </section>
+    </div>
   );
 }
 
@@ -392,7 +517,9 @@ function ExploreModal({
             {TIER_LABEL[exc.priceTier]} · {exc.priceLabel}
           </span>
           {exc.onYourRoute && (
-            <span className="on-route-badge"><Sparkles size={10} /> On your trip</span>
+            <span className="on-route-badge">
+              <Sparkles size={10} /> On your trip
+            </span>
           )}
         </div>
         <h2 className="explore-modal-title">{exc.name}</h2>
@@ -415,10 +542,24 @@ function ExploreModal({
           )}
           {exc.lat != null && exc.lng != null && (
             <>
-              <button type="button" className="ride-btn" onClick={() => openExternal(appleMapsUrl({ name: exc.name, lat: exc.lat!, lng: exc.lng! }))}>
+              <button
+                type="button"
+                className="ride-btn"
+                onClick={() =>
+                  openExternal(appleMapsUrl({ name: exc.name, lat: exc.lat!, lng: exc.lng! }))
+                }
+              >
                 Maps
               </button>
-              <button type="button" className="ride-btn ride-btn--alt" onClick={() => openExternal(googleMapsDirectionsUrl({ name: exc.name, lat: exc.lat!, lng: exc.lng! }))}>
+              <button
+                type="button"
+                className="ride-btn ride-btn--alt"
+                onClick={() =>
+                  openExternal(
+                    googleMapsDirectionsUrl({ name: exc.name, lat: exc.lat!, lng: exc.lng! }),
+                  )
+                }
+              >
                 Directions
               </button>
             </>
