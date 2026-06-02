@@ -132,11 +132,11 @@ export function ExploreView() {
     setAiMessage(null);
 
     if (!aiEnabled) {
-      setAiMessage("Curated picks below — go live with Scout for real-time prices.");
+      setAiMessage("Curated picks below — go live with Pedro for real-time prices.");
       return;
     }
     if (!budget.canUse) {
-      setAiMessage("Scout fuel's empty. Clear site data to reset the meter.");
+      setAiMessage("Pedro's out of fuel. Clear site data to reset the meter.");
       return;
     }
 
@@ -190,7 +190,7 @@ export function ExploreView() {
             <span className="wow-hero-eyebrow">Discover</span>
             <h2 className="wow-hero-title">Explore</h2>
             <p className="wow-hero-sub">
-              {EXCURSIONS.length} hand-picked adventures · Scout live scan
+              {EXCURSIONS.length} hand-picked adventures · Pedro live scan
             </p>
           </div>
           <Compass size={28} strokeWidth={1.25} className="wow-hero-icon" aria-hidden />
@@ -208,7 +208,7 @@ export function ExploreView() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Scan tours, stays, steals…"
-            aria-label="Scout search explore"
+            aria-label="Pedro search explore"
           />
           <button
             type="submit"

@@ -19,7 +19,7 @@ export function AiView() {
         <div className="wow-hero-top">
           <div>
             <span className="wow-hero-eyebrow">Trip intel</span>
-            <h2 className="wow-hero-title">Scout</h2>
+            <h2 className="wow-hero-title">Pedro</h2>
             <p className="wow-hero-sub">
               Knows your day, weather & bookings — ask anything or hunt live prices.
             </p>
@@ -48,7 +48,7 @@ export function AiView() {
           onClick={() => setMode("ask")}
         >
           <MessageCircle size={15} />
-          Ask Scout
+          Ask Pedro
         </button>
         <button
           type="button"

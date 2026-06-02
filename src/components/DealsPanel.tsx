@@ -29,7 +29,7 @@ export function DealsPanel({ aiEnabled }: { aiEnabled: boolean }) {
       return;
     }
     if (!budget.canUse) {
-      setResult("Scout fuel's empty on this device. Clear site data to reset the meter.");
+      setResult("Pedro's out of fuel on this device. Clear site data to reset the meter.");
       return;
     }
 

@@ -22,7 +22,7 @@ export function BudgetBar({
       <div className="fuel-gauge-top">
         <span className="fuel-gauge-label">
           <Zap size={11} />
-          Scout fuel
+          Pedro fuel
         </span>
         <span className="fuel-gauge-amount">
           ${formatBudgetUsd(remainingUsd)} left

@@ -12,7 +12,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
       id: "welcome",
       role: "assistant",
       content:
-        "Hey — I'm Scout. I know your day, weather, and what's booked. Ask me anything about the trip.",
+        "Hey — I'm Pedro. I know your day, weather, and what's booked. Ask me anything about the trip.",
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -37,7 +37,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "Scout fuel's empty on this device (~$5 cap). Clear site data to reset, or raise your limit in the Anthropic console.",
+            "Pedro's out of fuel on this device (~$5 cap). Clear site data to reset, or raise your limit in the Anthropic console.",
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -98,7 +98,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `Scout hit a snag — ${e instanceof Error ? e.message : "try again in a moment"}.`,
+          content: `Pedro hit a snag — ${e instanceof Error ? e.message : "try again in a moment"}.`,
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -112,7 +112,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
     <div className="chat-panel">
       <div className="chat-body">
         {!context.tripStartDate && (
-          <p className="context-hint">Set your trip start on Today — Scout gets sharper with dates.</p>
+          <p className="context-hint">Set your trip start on Today — Pedro gets sharper with dates.</p>
         )}
         <div className="quick-prompts">
           {QUICK_PROMPTS.map((q) => (
@@ -135,7 +135,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
           ))}
           {loading && (
             <div className="msg assistant thinking">
-              <span className="scan-dots">Scouting</span>
+              <span className="scan-dots">Pedro's on it</span>
             </div>
           )}
           <div ref={bottomRef} />
@@ -152,7 +152,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Scout anything…"
+            placeholder="Ask Pedro anything…"
             disabled={loading}
           />
           <button type="submit" className="btn-primary btn-send" disabled={loading || !input.trim()}>

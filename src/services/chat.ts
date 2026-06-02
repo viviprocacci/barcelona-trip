@@ -16,7 +16,7 @@ export function localFallback(userMessage: string): string {
 - *¿Cuánto cuesta?*
 - *La cuenta, por favor*
 
-Go live on Scout once the app is deployed with API keys.`;
+Go live with Pedro once the app is deployed with API keys.`;
   }
 
   if (/deal|cheap|price|book/i.test(q)) {
@@ -26,8 +26,8 @@ Go live on Scout once the app is deployed with API keys.`;
 - Lake hotel: book La Casa del Mundo direct
 - Shuttles: GuateGo or hostel desks beat airport rates
 
-Try **Price hunt** on Scout for live scans.`;
+Try **Price hunt** with Pedro for live scans.`;
   }
 
-  return `Scout needs API keys on the server for live intel. **Today**, **Explore**, and **Plan** work offline.`;
+  return `Pedro needs API keys on the server for live intel. **Today**, **Explore**, and **Plan** work offline.`;
 }

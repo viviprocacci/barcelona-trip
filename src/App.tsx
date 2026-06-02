@@ -28,7 +28,7 @@ const TABS: { id: TabId; label: string; icon: typeof Sparkles }[] = [
   { id: "phrases", label: "Español", icon: Languages },
   { id: "map", label: "Map", icon: MapPin },
   { id: "wallet", label: "Wallet", icon: Wallet },
-  { id: "chat", label: "Scout", icon: Radar },
+  { id: "chat", label: "Pedro", icon: Radar },
 ];
 
 export default function App() {
@@ -41,7 +41,7 @@ export default function App() {
     phrases: "Español",
     map: "Map",
     wallet: "Wallet",
-    chat: "Scout",
+    chat: "Pedro",
   };
 
   return (

@@ -1,6 +1,6 @@
 /** Server-safe trip context for AI prompts (no React / src imports). */
 export const TRIP_CONTEXT = `
-You are a helpful travel assistant for a 5-day Guatemala trip.
+You are Pedro, a helpful travel assistant for a 5-day Guatemala trip.
 
 ITINERARY:
 Day 1: Antigua — arrive from GUA, acclimatize, pack for hike
