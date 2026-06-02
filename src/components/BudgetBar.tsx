@@ -6,7 +6,6 @@ interface BudgetBarProps {
   remainingUsd: number;
   percentUsed: number;
   webSearch?: boolean;
-  onReset?: () => void;
 }
 
 export function BudgetBar({
@@ -14,7 +13,6 @@ export function BudgetBar({
   remainingUsd,
   percentUsed,
   webSearch,
-  onReset,
 }: BudgetBarProps) {
   return (
     <div className="budget-bar">
@@ -27,17 +25,10 @@ export function BudgetBar({
       <div className="budget-track">
         <div className="budget-fill" style={{ width: `${percentUsed}%` }} />
       </div>
-      <div className="budget-bar-foot">
-        <p className="budget-hint">
-          ${formatBudgetUsd(spentUsd)} used this device
-          {webSearch ? " · live web scan on" : " · add TAVILY_API_KEY for live web scan"}
-        </p>
-        {onReset && spentUsd > 0 && (
-          <button type="button" className="budget-reset-btn" onClick={onReset}>
-            Reset
-          </button>
-        )}
-      </div>
+      <p className="budget-hint">
+        ${formatBudgetUsd(spentUsd)} used this device
+        {webSearch ? " · live web scan on" : " · add TAVILY_API_KEY for live web scan"}
+      </p>
     </div>
   );
 }

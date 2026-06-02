@@ -1,6 +1,6 @@
 import { Car } from "lucide-react";
 import type { Activity } from "../data/trip";
-import { inDriveUrl, openExternal, uberUrl } from "../utils/links";
+import { inDriveUrl, uberUrl } from "../utils/links";
 
 interface ActivityRowProps {
   activity: Activity;
@@ -17,21 +17,13 @@ export function ActivityRow({ activity, showRide = true }: ActivityRowProps) {
         <span className="activity-text">{activity.text}</span>
         {showRide && ride && (
           <div className="ride-actions">
-            <button
-              type="button"
-              className="ride-btn"
-              onClick={() => openExternal(uberUrl(ride))}
-            >
+            <a href={uberUrl(ride)} className="ride-btn">
               <Car size={12} strokeWidth={1.5} />
               Uber
-            </button>
-            <button
-              type="button"
-              className="ride-btn ride-btn--alt"
-              onClick={() => openExternal(inDriveUrl(ride))}
-            >
+            </a>
+            <a href={inDriveUrl(ride)} className="ride-btn ride-btn--alt">
               InDrive
-            </button>
+            </a>
           </div>
         )}
       </div>

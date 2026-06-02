@@ -413,6 +413,7 @@ button, input, select, textarea { font-family: inherit; }
   color: var(--text-soft);
   cursor: pointer;
   transition: all 0.15s var(--ease);
+  text-decoration: none;
 }
 
 .ride-btn:hover {
@@ -1044,6 +1045,7 @@ button, input, select, textarea { font-family: inherit; }
   font-weight: 600;
   color: var(--text-soft);
   cursor: pointer;
+  text-decoration: none;
 }
 
 /* ── Chat ── */
@@ -1883,29 +1885,9 @@ button, input, select, textarea { font-family: inherit; }
 }
 
 .budget-hint {
-  margin: 0;
+  margin: 0.4rem 0 0;
   font-size: 0.6875rem;
   color: var(--muted);
-}
-
-.budget-bar-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-}
-
-.budget-reset-btn {
-  flex-shrink: 0;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: transparent;
-  font-size: 0.625rem;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
 }
 
 .ai-view { display: flex; flex-direction: column; gap: 0.5rem; }

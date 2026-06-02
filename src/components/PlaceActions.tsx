@@ -15,17 +15,15 @@ interface PlaceActionsProps {
 }
 
 export function PlaceActions({ place, compact }: PlaceActionsProps) {
-  const actions = [
-    { label: "Weather", icon: Cloud, url: weatherUrl(place) },
-    { label: "Maps", icon: MapPin, url: appleMapsUrl(place) },
-    { label: "Directions", icon: Navigation, url: googleMapsDirectionsUrl(place) },
-    { label: "Uber", icon: Car, url: uberUrl(place) },
-    { label: "InDrive", icon: Car, url: inDriveUrl(place) },
+  const mapActions = [
+    { label: "Weather", icon: Cloud, url: weatherUrl(place), external: true },
+    { label: "Maps", icon: MapPin, url: appleMapsUrl(place), external: true },
+    { label: "Directions", icon: Navigation, url: googleMapsDirectionsUrl(place), external: true },
   ];
 
   return (
     <div className={`place-actions ${compact ? "place-actions--compact" : ""}`}>
-      {actions.map(({ label, icon: Icon, url }) => (
+      {mapActions.map(({ label, icon: Icon, url }) => (
         <button
           key={label}
           type="button"
@@ -36,6 +34,14 @@ export function PlaceActions({ place, compact }: PlaceActionsProps) {
           {label}
         </button>
       ))}
+      <a href={uberUrl(place)} className="action-link action-link--ride">
+        <Car size={14} strokeWidth={1.5} />
+        Uber
+      </a>
+      <a href={inDriveUrl(place)} className="action-link action-link--ride">
+        <Car size={14} strokeWidth={1.5} />
+        InDrive
+      </a>
     </div>
   );
 }

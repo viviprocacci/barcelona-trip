@@ -1,7 +1,7 @@
 import { Calendar, Car, ChevronRight, MapPin, RotateCcw } from "lucide-react";
 import { DAYS } from "../data/trip";
 import { useTripStart } from "../hooks/useTripStart";
-import { inDriveUrl, openExternal, uberUrl } from "../utils/links";
+import { inDriveUrl, uberUrl } from "../utils/links";
 import { getNudges } from "../utils/nudges";
 import { tripDayLabel } from "../utils/tripDay";
 import { ActivityRow } from "./ActivityRow";
@@ -74,21 +74,13 @@ export function TodayView() {
             </p>
             {nextActivity.rideTo && (
               <div className="ride-actions ride-actions--inline">
-                <button
-                  type="button"
-                  className="ride-btn"
-                  onClick={() => openExternal(uberUrl(nextActivity.rideTo!))}
-                >
+                <a href={uberUrl(nextActivity.rideTo)} className="ride-btn">
                   <Car size={12} strokeWidth={1.5} />
                   Uber
-                </button>
-                <button
-                  type="button"
-                  className="ride-btn ride-btn--alt"
-                  onClick={() => openExternal(inDriveUrl(nextActivity.rideTo!))}
-                >
+                </a>
+                <a href={inDriveUrl(nextActivity.rideTo)} className="ride-btn ride-btn--alt">
                   InDrive
-                </button>
+                </a>
               </div>
             )}
           </div>
