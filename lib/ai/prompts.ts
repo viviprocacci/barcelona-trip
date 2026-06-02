@@ -1,4 +1,4 @@
-import { TRIP_CONTEXT } from "../../src/data/trip";
+import { TRIP_CONTEXT } from "./tripContext";
 import type { ChatContext } from "./types";
 
 export function buildSystemPrompt(ctx?: ChatContext): string {
