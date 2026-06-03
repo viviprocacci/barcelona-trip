@@ -132,7 +132,11 @@ export function TodayDayPage({
           <h3 className="section-title">
             {isLiveToday ? "Weather today" : `Weather · Day ${viewDay}`}
           </h3>
-          <WeatherCards tripDay={startDate ? viewDay : null} compact />
+          <WeatherCards
+            key={startDate ? viewDay : "locked"}
+            tripDay={startDate ? viewDay : null}
+            compact
+          />
         </section>
 
         <section

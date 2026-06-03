@@ -23,7 +23,8 @@ export function TodayDayPeek({ plan, viewDay, tripDays }: TodayDayPeekProps) {
             src={plan.image}
             alt=""
             className="today-hero-img"
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
             decoding="async"
             draggable={false}
           />

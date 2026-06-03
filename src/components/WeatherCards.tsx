@@ -1,18 +1,43 @@
 import { useEffect, useState } from "react";
 import { Cloud, Droplets, Wind } from "lucide-react";
 import type { WeatherForecast } from "../types";
-import { fetchWeather, weatherLabel, WEATHER_SPOTS, weatherSpotsForDay } from "../services/weather";
+import {
+  fetchWeather,
+  weatherLabel,
+  WEATHER_SPOTS,
+  weatherSpotsForDay,
+} from "../services/weather";
 
 const weatherCache = new Map<number, WeatherForecast[]>();
+const weatherInflight = new Map<number, Promise<WeatherForecast[]>>();
 
-/** Warm cache for upcoming swipes (fire-and-forget). */
-export function prefetchWeatherForDay(tripDay: number) {
-  if (weatherCache.has(tripDay)) return;
-  const spotIds = weatherSpotsForDay(tripDay);
-  const spots = WEATHER_SPOTS.filter((s) => spotIds.includes(s.id));
-  fetchWeather(spots)
-    .then((data) => weatherCache.set(tripDay, data))
-    .catch(() => {});
+function loadWeatherForDay(tripDay: number): Promise<WeatherForecast[]> {
+  const cached = weatherCache.get(tripDay);
+  if (cached) return Promise.resolve(cached);
+
+  let inflight = weatherInflight.get(tripDay);
+  if (!inflight) {
+    const spotIds = weatherSpotsForDay(tripDay);
+    const spots = WEATHER_SPOTS.filter((s) => spotIds.includes(s.id));
+    inflight = fetchWeather(spots)
+      .then((data) => {
+        weatherCache.set(tripDay, data);
+        return data;
+      })
+      .finally(() => {
+        weatherInflight.delete(tripDay);
+      });
+    weatherInflight.set(tripDay, inflight);
+  }
+  return inflight;
+}
+
+/** Warm cache for upcoming swipes; resolves when forecast is cached. */
+export function prefetchWeatherForDay(tripDay: number): Promise<void> {
+  return loadWeatherForDay(tripDay).then(
+    () => {},
+    () => {},
+  );
 }
 
 interface WeatherCardsProps {
@@ -20,9 +45,15 @@ interface WeatherCardsProps {
   compact?: boolean;
 }
 
+function spotsForTripDay(tripDay: number) {
+  const spotIds = weatherSpotsForDay(tripDay);
+  return WEATHER_SPOTS.filter((s) => spotIds.includes(s.id));
+}
+
 function placeholderCards(tripDay: number | null, compact?: boolean) {
-  const spotIds = weatherSpotsForDay(tripDay ?? 1);
-  const spots = WEATHER_SPOTS.filter((s) => spotIds.includes(s.id));
+  const spots = WEATHER_SPOTS.filter((s) =>
+    weatherSpotsForDay(tripDay ?? 1).includes(s.id),
+  );
 
   return (
     <div
@@ -51,70 +82,43 @@ function placeholderCards(tripDay: number | null, compact?: boolean) {
   );
 }
 
-export function WeatherCards({ tripDay, compact }: WeatherCardsProps) {
-  const cached = tripDay != null ? weatherCache.get(tripDay) : undefined;
-  const [forecasts, setForecasts] = useState<WeatherForecast[]>(cached ?? []);
-  const [loading, setLoading] = useState(tripDay != null && !cached);
-  const [error, setError] = useState(false);
+/** Same layout as real cards — avoids layout shift while cache warms. */
+function weatherSkeleton(tripDay: number, compact?: boolean) {
+  const spots = spotsForTripDay(tripDay);
 
-  useEffect(() => {
-    if (tripDay == null) {
-      setForecasts([]);
-      setLoading(false);
-      setError(false);
-      return;
-    }
+  return (
+    <div
+      className={`weather-row weather-row--skeleton ${compact ? "weather-row--compact" : ""}`}
+      aria-busy="true"
+      aria-label="Loading forecast"
+    >
+      {spots.map((spot) => (
+        <article key={spot.id} className="weather-card weather-card--skeleton">
+          <span className="weather-card-label">{spot.label}</span>
+          <div className="weather-card-temps">
+            <strong className="weather-skeleton-bar" />
+            <span className="weather-skeleton-bar weather-skeleton-bar--short" />
+          </div>
+          <p className="weather-card-desc">
+            <Cloud size={12} strokeWidth={1.5} />
+            <span className="weather-skeleton-bar weather-skeleton-bar--wide" />
+          </p>
+          <div className="weather-card-meta">
+            <span className="weather-skeleton-bar weather-skeleton-bar--short" />
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
 
-    const hit = weatherCache.get(tripDay);
-    if (hit) {
-      setForecasts(hit);
-      setLoading(false);
-      setError(false);
-      return;
-    }
-
-    let cancelled = false;
-    setLoading(true);
-    setError(false);
-
-    const spotIds = weatherSpotsForDay(tripDay);
-    const spots = WEATHER_SPOTS.filter((s) => spotIds.includes(s.id));
-
-    fetchWeather(spots)
-      .then((data) => {
-        if (!cancelled) {
-          weatherCache.set(tripDay, data);
-          setForecasts(data);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setError(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [tripDay]);
-
-  if (tripDay == null) {
-    return placeholderCards(tripDay, compact);
-  }
-
-  if (loading) {
-    return <div className="weather-row weather-row--loading">Loading forecast…</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="weather-row weather-row--error">
-        Weather unavailable. Check connection.
-      </div>
-    );
-  }
-
+function WeatherForecastRow({
+  forecasts,
+  compact,
+}: {
+  forecasts: WeatherForecast[];
+  compact?: boolean;
+}) {
   return (
     <div className={`weather-row ${compact ? "weather-row--compact" : ""}`}>
       {forecasts.map((f) => (
@@ -142,4 +146,48 @@ export function WeatherCards({ tripDay, compact }: WeatherCardsProps) {
       ))}
     </div>
   );
+}
+
+export function WeatherCards({ tripDay, compact }: WeatherCardsProps) {
+  const [, setRevision] = useState(0);
+  const [errorDay, setErrorDay] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (tripDay == null) return;
+
+    setErrorDay(null);
+    if (weatherCache.has(tripDay)) return;
+
+    let cancelled = false;
+    loadWeatherForDay(tripDay)
+      .then(() => {
+        if (!cancelled) setRevision((n) => n + 1);
+      })
+      .catch(() => {
+        if (!cancelled) setErrorDay(tripDay);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripDay]);
+
+  if (tripDay == null) {
+    return placeholderCards(tripDay, compact);
+  }
+
+  const cached = weatherCache.get(tripDay);
+  if (cached) {
+    return <WeatherForecastRow forecasts={cached} compact={compact} />;
+  }
+
+  if (errorDay === tripDay) {
+    return (
+      <div className="weather-row weather-row--error">
+        Weather unavailable. Check connection.
+      </div>
+    );
+  }
+
+  return weatherSkeleton(tripDay, compact);
 }

@@ -228,6 +228,11 @@ button, input, select, textarea { font-family: inherit; }
   transform: scale(1.25);
 }
 
+.day-swipe-dot:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
 .today-day-page {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -513,6 +518,37 @@ button, input, select, textarea { font-family: inherit; }
   background: var(--bg);
   box-shadow: none;
   opacity: 0.7;
+}
+
+.weather-card--skeleton {
+  pointer-events: none;
+}
+
+.weather-skeleton-bar {
+  display: inline-block;
+  height: 0.75rem;
+  min-width: 2.5rem;
+  border-radius: 4px;
+  background: var(--border-light);
+  vertical-align: middle;
+}
+
+.weather-skeleton-bar--short {
+  min-width: 1.75rem;
+}
+
+.weather-skeleton-bar--wide {
+  min-width: 4.5rem;
+}
+
+.today-weather-preload {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .weather-card--placeholder .weather-card-temps strong,

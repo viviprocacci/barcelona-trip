@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { DAYS } from "../data/trip";
-import { useAdjacentDayImages } from "../hooks/useAdjacentDayImages";
+import { useTodaySwipeReady } from "../hooks/useTodaySwipeReady";
 import { useTripStart } from "../hooks/useTripStart";
 import { DaySwipeCard } from "./DaySwipeCard";
 import { TodayDayPage } from "./TodayDayPage";
 import { TodayDayPeek } from "./TodayDayPeek";
 import { TripStartDateBar } from "./TripStartDateBar";
+import { WeatherCards } from "./WeatherCards";
 
 const TRIP_DAYS = 5;
 
@@ -21,9 +22,12 @@ export function TodayView() {
     setViewDay(calendarDay);
   }, [calendarDay]);
 
-  useAdjacentDayImages(viewDay, TRIP_DAYS, startDate);
+  const { canGoToDay } = useTodaySwipeReady(TRIP_DAYS, startDate);
 
   if (!loaded) return null;
+
+  const canSwipePrev = viewDay > 1 && canGoToDay(viewDay - 1);
+  const canSwipeNext = viewDay < TRIP_DAYS && canGoToDay(viewDay + 1);
 
   const plan = DAYS.find((d) => d.day === viewDay) ?? DAYS[0];
   const peekPrevPlan = DAYS.find((d) => d.day === viewDay - 1);
@@ -43,10 +47,18 @@ export function TodayView() {
         setStartDate={setStartDate}
         resetStartDate={resetStartDate}
       />
+      {startDate && (
+        <div className="today-weather-preload" aria-hidden inert>
+          {Array.from({ length: TRIP_DAYS }, (_, i) => i + 1).map((d) => (
+            <WeatherCards key={`preload-${d}`} tripDay={d} compact />
+          ))}
+        </div>
+      )}
+
       <DaySwipeCard
-        canPrev={viewDay > 1}
-        canNext={viewDay < TRIP_DAYS}
-        showSwipeHint={viewDay === 1}
+        canPrev={canSwipePrev}
+        canNext={canSwipeNext}
+        showSwipeHint={viewDay === 1 && canSwipeNext}
         onPrev={() => setViewDay((d) => Math.max(1, d - 1))}
         onNext={() => setViewDay((d) => Math.min(TRIP_DAYS, d + 1))}
         peekPrev={
@@ -80,7 +92,8 @@ export function TodayView() {
             aria-selected={d === viewDay}
             aria-label={`Day ${d}`}
             className={`day-swipe-dot ${d === viewDay ? "day-swipe-dot--active" : ""}`}
-            onClick={() => setViewDay(d)}
+            disabled={d !== viewDay && !canGoToDay(d)}
+            onClick={() => canGoToDay(d) && setViewDay(d)}
           />
         ))}
       </div>
