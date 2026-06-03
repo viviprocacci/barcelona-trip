@@ -16,8 +16,8 @@ export const DAY_IMAGES: Record<1 | 2 | 3 | 4 | 5, string> = {
 /** Static crop focus for 16:9 hero strip (tuned per photo). */
 export const DAY_IMAGE_FOCUS: Record<1 | 2 | 3 | 4 | 5, string> = {
   1: "50% 40%", // Santa Catalina arch + Agua
-  2: "38% 32%", // Lake Atitlán volcanoes from the deck
-  3: "48% 42%", // Fuego eruption + hiker
-  4: "52% 50%", // Cliff jumpers + turquoise water
+  2: "68% 56%", // Woman on deck + Lake Atitlán volcanoes
+  3: "48% 62%", // Fuego eruption + hiker
+  4: "52% 66%", // Cliff jumpers + turquoise water
   5: "46% 54%", // Hammock terrace + San Pedro volcano
 };
