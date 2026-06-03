@@ -133,12 +133,82 @@ button, input, select, textarea { font-family: inherit; }
 
 .today-view { display: flex; flex-direction: column; gap: 1.25rem; }
 
+.today-day-carousel {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+
+.today-day-nav {
+  flex-shrink: 0;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+
+.today-day-nav:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.today-day-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.today-day-carousel .today-hero {
+  flex: 1;
+  min-width: 0;
+}
+
 .today-hero {
   background: var(--surface);
   border-radius: var(--radius-lg);
-  padding: 1.35rem;
+  overflow: hidden;
   box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
+}
+
+.today-hero-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  max-height: 11rem;
+  background: var(--bg-deep);
+  overflow: hidden;
+}
+
+.today-hero-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--focus, center);
+  animation: today-hero-fade 0.45s var(--ease) both;
+}
+
+@keyframes today-hero-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-hero-img {
+    animation: none;
+  }
+}
+
+.today-hero-body {
+  padding: 1.35rem;
 }
 
 .today-hero-top {
@@ -155,6 +225,12 @@ button, input, select, textarea { font-family: inherit; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
+}
+
+.today-eyebrow-today {
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-soft);
 }
 
 .today-title {

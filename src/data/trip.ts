@@ -1,3 +1,5 @@
+import { DAY_IMAGES } from "../../lib/images";
+
 export type PlaceCategory =
   | "airport"
   | "city"
@@ -29,6 +31,8 @@ export interface DayPlan {
   day: number;
   title: string;
   subtitle?: string;
+  image?: string;
+  imageAlt?: string;
   activities: Activity[];
   tips?: string[];
   stay?: string;
@@ -189,6 +193,8 @@ export const DAYS: DayPlan[] = [
     day: 1,
     title: "Antigua · Arrive & Acclimatize",
     subtitle: "Land GUA early",
+    image: DAY_IMAGES[1],
+    imageAlt: "Santa Catalina Arch in Antigua with volcano backdrop",
     stay: "Antigua base hotel or hostel",
     activities: [
       { time: "Morning", text: "Land GUA early, shuttle to Antigua (~45 min)", rideTo: { name: "Antigua", lat: 14.5586, lng: -90.7344, address: "Antigua Guatemala, Sacatepéquez, Guatemala" } },
@@ -206,6 +212,8 @@ export const DAYS: DayPlan[] = [
     day: 2,
     title: "Acatenango · Ascent",
     subtitle: "Overnight on the volcano",
+    image: DAY_IMAGES[2],
+    imageAlt: "Volcanic mountain ridge above the clouds",
     activities: [
       { time: "Early", text: "Shuttle to La Soledad base (~1.5 hrs)", rideTo: { name: "La Soledad trailhead", lat: 14.519, lng: -90.875, address: "La Soledad, Acatenango, Chimaltenango, Guatemala" } },
       { text: "4–6 hr ascent to high camp (~3,900m). Steep, dusty, very windy" },
@@ -222,6 +230,8 @@ export const DAYS: DayPlan[] = [
     day: 3,
     title: "Acatenango descent · Recovery · Lake",
     subtitle: "Off mountain by ~10am",
+    image: DAY_IMAGES[3],
+    imageAlt: "Misty mountains over a lake valley",
     stay: "La Casa del Mundo (2 nights)",
     activities: [
       { time: "Dawn", text: "Optional sunrise summit push" },
@@ -236,6 +246,8 @@ export const DAYS: DayPlan[] = [
   {
     day: 4,
     title: "Lake Atitlán · Full Lake Day",
+    image: DAY_IMAGES[4],
+    imageAlt: "Sunlit forest and mountain lake scenery",
     activities: [
       { time: "Morning", text: "Kayaking or guided bass fishing from the lake. Go early before wind." },
       { text: "Cliff jump at La Casa del Mundo (~40 ft)" },
@@ -247,6 +259,8 @@ export const DAYS: DayPlan[] = [
   {
     day: 5,
     title: "Morning Lake · Fly Home",
+    image: DAY_IMAGES[5],
+    imageAlt: "Alpine peaks at golden sunrise",
     activities: [
       { text: "Slow breakfast with volcano views" },
       { time: "Midday", text: "Shuttle back to Guatemala City", rideTo: { name: "GUA Airport", lat: 14.5833, lng: -90.5275, address: "Aeropuerto La Aurora, Guatemala City, Guatemala" } },
