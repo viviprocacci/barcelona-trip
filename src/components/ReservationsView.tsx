@@ -14,13 +14,12 @@ const CATEGORIES: ReservationCategory[] = [
 ];
 
 const SUGGESTED = [
-  { title: "Acatenango tour (Wicho & Charlie's / Ox / GYG)", category: "tour" as const },
-  { title: "Antigua hotel, Night 1", category: "hotel" as const },
-  { title: "El Descanso Spa massage", category: "spa" as const },
-  { title: "La Casa del Mundo, 2 nights", category: "hotel" as const },
-  { title: "Shuttle Antigua → Lake Atitlán", category: "transport" as const },
-  { title: "Shuttle Lake → GUA (Day 5)", category: "transport" as const },
-  { title: "Flight home from GUA", category: "flight" as const },
+  { title: "Sagrada Família timed entry", category: "tour" as const },
+  { title: "Park Güell timed entry", category: "tour" as const },
+  { title: "Diputació 119 · language school", category: "hotel" as const },
+  { title: "Montserrat train + rack railway", category: "transport" as const },
+  { title: "Aerobús BCN ↔ city", category: "transport" as const },
+  { title: "Flight home from BCN", category: "flight" as const },
 ];
 
 const emptyForm = {
@@ -92,7 +91,7 @@ export function ReservationsView() {
               required
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Acatenango with Ox Expeditions"
+              placeholder="Sagrada Família 10:00 entry"
             />
           </label>
           <label>

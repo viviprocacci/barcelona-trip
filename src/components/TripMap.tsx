@@ -1,24 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Radar, Trash2, X } from "lucide-react";
+import { Loader2, MapPin, Footprints, Radar, Trash2, X } from "lucide-react";
 import L from "leaflet";
 import { EXCURSIONS } from "../data/excursions";
-import { PLACES, type Place, type PlaceCategory } from "../data/trip";
+import {
+  NEARBY_CATEGORY_COLORS,
+  NEARBY_PLACES,
+  type NearbyCategory,
+  type NearbyPlace,
+} from "../data/nearby";
+import { PLACES, SCHOOL_BASE_ID, getSchoolBase, type Place, type PlaceCategory } from "../data/trip";
 import { haversineKm, formatDistanceKm } from "../../lib/geo/haversine";
 import { useMapPins } from "../hooks/useMapPins";
 import type { SavedMapPin } from "../types";
 import { useNavigation } from "../contexts/NavigationContext";
 import { mapPlaceSearch } from "../services/mapSearch";
 import { PlaceActions } from "./PlaceActions";
+import { googleMapsWalkingDirectionsUrl, openExternal } from "../utils/links";
 
-const ANTIGUA = { lat: 14.5586, lng: -90.7344, name: "Antigua" };
-const MAP_CENTER: L.LatLngExpression = [14.62, -90.85];
+const CITY_CENTER = { lat: 41.3874, lng: 2.1686, name: "Barcelona" };
+const MAP_CENTER: L.LatLngExpression = [41.39, 2.17];
 
 const CATEGORY_COLORS: Record<PlaceCategory, string> = {
   airport: "#8c857c",
   city: "#5a7d8a",
   hike: "#9c4f3d",
   spa: "#8a7a8e",
-  lake: "#5a7d8a",
+  beach: "#5a7d8a",
   activity: "#b8956b",
   restaurant: "#9c4f3d",
   hotel: "#6b8f71",
@@ -42,7 +49,40 @@ const icons = Object.fromEntries(
   ]),
 ) as Record<PlaceCategory, L.DivIcon>;
 
+const SCHOOL_PIN_COLOR = "#5a6b4a";
+
+const schoolIcon = makeIcon(SCHOOL_PIN_COLOR);
+
 const savedIcon = makeIcon(SAVED_PIN_COLOR);
+
+const nearbyIcons = Object.fromEntries(
+  (Object.keys(NEARBY_CATEGORY_COLORS) as NearbyCategory[]).map((c) => [
+    c,
+    makeIcon(NEARBY_CATEGORY_COLORS[c]),
+  ]),
+) as Record<NearbyCategory, L.DivIcon>;
+
+const NEARBY_LAYER_LABELS: Record<NearbyCategory, string> = {
+  pilates: "pilates",
+  markets: "markets",
+  shopping: "shopping",
+};
+
+type LayerVisibility = {
+  itinerary: boolean;
+  pilates: boolean;
+  markets: boolean;
+  shopping: boolean;
+  saved: boolean;
+};
+
+const DEFAULT_LAYERS: LayerVisibility = {
+  itinerary: true,
+  pilates: true,
+  markets: true,
+  shopping: true,
+  saved: true,
+};
 
 type LeafletContainer = HTMLDivElement & { _leaflet_id?: number };
 
@@ -85,7 +125,8 @@ function addMapTiles(map: L.Map) {
 
 type Selected =
   | { kind: "place"; place: Place }
-  | { kind: "pin"; pin: SavedMapPin };
+  | { kind: "pin"; pin: SavedMapPin }
+  | { kind: "nearby"; item: NearbyPlace };
 
 function findKnownPlace(query: string) {
   const q = query.toLowerCase().trim();
@@ -125,8 +166,9 @@ function findKnownPlace(query: string) {
 }
 
 export function TripMap() {
+  const school = getSchoolBase();
   const { pins, loaded, addPin, removePin } = useMapPins();
-  const { askPedro } = useNavigation();
+  const { askMateo, consumeMapFocus } = useNavigation();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -139,19 +181,37 @@ export function TripMap() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [layers, setLayers] = useState<LayerVisibility>(DEFAULT_LAYERS);
+  const [pendingFocus, setPendingFocus] = useState<ReturnType<typeof consumeMapFocus>>(null);
 
-  const pedroPrompt = (name: string) =>
-    `Tell me about ${name} and whether it's worth adding to my Guatemala trip.`;
+  const mateoPrompt = (name: string) =>
+    `Tell me about ${name} and whether it's worth adding to my Barcelona trip.`;
 
-  const categories = Object.keys(CATEGORY_COLORS) as PlaceCategory[];
+  const visiblePoints = useMemo(() => {
+    const pts: { lat: number; lng: number }[] = [];
+    if (layers.itinerary) {
+      pts.push(...PLACES.map((p) => ({ lat: p.lat, lng: p.lng })));
+    }
+    if (layers.saved) {
+      pts.push(...pins.map((p) => ({ lat: p.lat, lng: p.lng })));
+    }
+    for (const cat of Object.keys(NEARBY_CATEGORY_COLORS) as NearbyCategory[]) {
+      if (layers[cat]) {
+        pts.push(
+          ...NEARBY_PLACES.filter((p) => p.category === cat).map((p) => ({
+            lat: p.lat,
+            lng: p.lng,
+          })),
+        );
+      }
+    }
+    return pts;
+  }, [pins, layers]);
 
-  const allPoints = useMemo(
-    () => [
-      ...PLACES.map((p) => ({ lat: p.lat, lng: p.lng })),
-      ...pins.map((p) => ({ lat: p.lat, lng: p.lng })),
-    ],
-    [pins],
-  );
+  useEffect(() => {
+    const focus = consumeMapFocus();
+    if (focus) setPendingFocus(focus);
+  }, [consumeMapFocus]);
 
   useEffect(() => {
     const el = containerRef.current as LeafletContainer | null;
@@ -240,23 +300,58 @@ export function TripMap() {
 
     group.clearLayers();
 
-    for (const place of PLACES) {
-      const marker = L.marker([place.lat, place.lng], { icon: icons[place.category] });
-      marker.on("click", () => setSelected({ kind: "place", place }));
-      marker.addTo(group);
+    if (layers.itinerary) {
+      for (const place of PLACES) {
+        const icon =
+          place.id === SCHOOL_BASE_ID ? schoolIcon : icons[place.category];
+        const marker = L.marker([place.lat, place.lng], { icon });
+        marker.on("click", () => setSelected({ kind: "place", place }));
+        marker.addTo(group);
+      }
     }
 
-    for (const pin of pins) {
-      const marker = L.marker([pin.lat, pin.lng], { icon: savedIcon });
-      marker.on("click", () => setSelected({ kind: "pin", pin }));
-      marker.addTo(group);
+    for (const cat of Object.keys(NEARBY_CATEGORY_COLORS) as NearbyCategory[]) {
+      if (!layers[cat]) continue;
+      for (const item of NEARBY_PLACES.filter((p) => p.category === cat)) {
+        const marker = L.marker([item.lat, item.lng], { icon: nearbyIcons[cat] });
+        marker.on("click", () => setSelected({ kind: "nearby", item }));
+        marker.addTo(group);
+      }
     }
 
-    if (allPoints.length > 0) {
-      const bounds = L.latLngBounds(allPoints.map((p) => [p.lat, p.lng]));
+    if (layers.saved) {
+      for (const pin of pins) {
+        const marker = L.marker([pin.lat, pin.lng], { icon: savedIcon });
+        marker.on("click", () => setSelected({ kind: "pin", pin }));
+        marker.addTo(group);
+      }
+    }
+
+    if (pendingFocus) {
+      const { lat, lng, zoom = 16, nearbyId, placeId } = pendingFocus;
+      map.setView([lat, lng], zoom, { animate: true });
+
+      if (nearbyId) {
+        const item = NEARBY_PLACES.find((p) => p.id === nearbyId);
+        if (item) setSelected({ kind: "nearby", item });
+      } else if (placeId) {
+        const place = PLACES.find((p) => p.id === placeId);
+        if (place) setSelected({ kind: "place", place });
+      }
+
+      setPendingFocus(null);
+      return;
+    }
+
+    if (visiblePoints.length > 0) {
+      const bounds = L.latLngBounds(visiblePoints.map((p) => [p.lat, p.lng]));
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
     }
-  }, [pins, allPoints, mapStatus]);
+  }, [pins, visiblePoints, mapStatus, layers, pendingFocus]);
+
+  const toggleLayer = (key: keyof LayerVisibility) => {
+    setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const handleAddPlace = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,15 +393,48 @@ export function TripMap() {
     }
   };
 
+  const showSchoolOnMap = () => {
+    setPendingFocus({
+      lat: school.lat,
+      lng: school.lng,
+      zoom: 17,
+      placeId: school.id,
+    });
+    setSelected({ kind: "place", place: school });
+  };
+
   return (
     <div className="map-section">
+      <div className="map-home-card">
+        <div className="map-home-card-body">
+          <span className="map-home-eyebrow">Language school</span>
+          <h3 className="map-home-title">{school.name}</h3>
+          <p className="map-home-address">{school.address}</p>
+          {school.notes && <p className="map-home-notes">{school.notes}</p>}
+        </div>
+        <div className="map-home-actions">
+          <button type="button" className="map-home-btn" onClick={showSchoolOnMap}>
+            <MapPin size={15} strokeWidth={1.5} />
+            Show on map
+          </button>
+          <button
+            type="button"
+            className="map-home-btn map-home-btn--primary"
+            onClick={() => openExternal(googleMapsWalkingDirectionsUrl(school))}
+          >
+            <Footprints size={15} strokeWidth={1.5} />
+            Walk here
+          </button>
+        </div>
+      </div>
+
       <div className="map-search-panel">
         <form className="map-search-form" onSubmit={handleAddPlace}>
           <Radar size={17} strokeWidth={1.5} className="map-search-icon" />
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Add a place (Cerro Tzankujil, Rincón Tipico…)"
+            placeholder="Add a place (Sagrada Família, Park Güell, La Boqueria…)"
             aria-label="Search place to add to map"
           />
           <button
@@ -345,17 +473,41 @@ export function TripMap() {
         />
       </div>
 
-      <div className="map-legend">
-        {categories.map((c) => (
-          <span key={c} className="legend-item">
-            <span className="legend-dot" style={{ background: CATEGORY_COLORS[c] }} />
-            {c}
-          </span>
+      <div className="map-legend map-legend--toggle">
+        <span className="map-legend-heading">Layers</span>
+        <button
+          type="button"
+          className={`legend-item legend-item--toggle ${layers.itinerary ? "" : "off"}`}
+          onClick={() => toggleLayer("itinerary")}
+          aria-pressed={layers.itinerary}
+        >
+          <span className="legend-dot" style={{ background: SCHOOL_PIN_COLOR }} />
+          itinerary + school
+        </button>
+        {(Object.keys(NEARBY_CATEGORY_COLORS) as NearbyCategory[]).map((cat) => (
+          <button
+            key={cat}
+            type="button"
+            className={`legend-item legend-item--toggle ${layers[cat] ? "" : "off"}`}
+            onClick={() => toggleLayer(cat)}
+            aria-pressed={layers[cat]}
+          >
+            <span
+              className="legend-dot"
+              style={{ background: NEARBY_CATEGORY_COLORS[cat] }}
+            />
+            {NEARBY_LAYER_LABELS[cat]}
+          </button>
         ))}
-        <span className="legend-item">
+        <button
+          type="button"
+          className={`legend-item legend-item--toggle ${layers.saved ? "" : "off"}`}
+          onClick={() => toggleLayer("saved")}
+          aria-pressed={layers.saved}
+        >
           <span className="legend-dot" style={{ background: SAVED_PIN_COLOR }} />
           saved
-        </span>
+        </button>
       </div>
 
       {selected && (
@@ -370,8 +522,8 @@ export function TripMap() {
           </button>
           <PlaceDetail
             selected={selected}
-            onAskPedro={askPedro}
-            pedroPrompt={pedroPrompt}
+            onAskMateo={askMateo}
+            mateoPrompt={mateoPrompt}
             onRemovePin={(id) => {
               removePin(id);
               setSelected(null);
@@ -383,7 +535,7 @@ export function TripMap() {
       {loaded && pins.length > 0 && (
         <ul className="map-saved-list">
           {pins.map((pin) => {
-            const km = haversineKm(ANTIGUA, pin);
+            const km = haversineKm(CITY_CENTER, pin);
             return (
               <li key={pin.id} className="map-saved-item">
                 <button
@@ -392,7 +544,7 @@ export function TripMap() {
                   onClick={() => setSelected({ kind: "pin", pin })}
                 >
                   <strong>{pin.name}</strong>
-                  <span className="map-saved-dist">{formatDistanceKm(km)} from Antigua</span>
+                  <span className="map-saved-dist">{formatDistanceKm(km)} from city center</span>
                 </button>
                 <button
                   type="button"
@@ -413,28 +565,38 @@ export function TripMap() {
 
 function PlaceDetail({
   selected,
-  onAskPedro,
-  pedroPrompt,
+  onAskMateo,
+  mateoPrompt,
   onRemovePin,
 }: {
   selected: Selected;
-  onAskPedro: (msg: string) => void;
-  pedroPrompt: (name: string) => string;
+  onAskMateo: (msg: string) => void;
+  mateoPrompt: (name: string) => string;
   onRemovePin: (id: string) => void;
 }) {
   const place =
     selected.kind === "place"
       ? selected.place
-      : {
-          name: selected.pin.name,
-          lat: selected.pin.lat,
-          lng: selected.pin.lng,
-          address: selected.pin.address,
-          day: undefined,
-          notes: selected.pin.notes,
-        };
+      : selected.kind === "nearby"
+        ? {
+            name: selected.item.name,
+            lat: selected.item.lat,
+            lng: selected.item.lng,
+            address: selected.item.address,
+            day: undefined,
+            notes: selected.item.notes,
+            hours: selected.item.hours,
+          }
+        : {
+            name: selected.pin.name,
+            lat: selected.pin.lat,
+            lng: selected.pin.lng,
+            address: selected.pin.address,
+            day: undefined,
+            notes: selected.pin.notes,
+          };
 
-  const km = haversineKm(ANTIGUA, place);
+  const km = haversineKm(CITY_CENTER, place);
 
   return (
     <>
@@ -442,14 +604,20 @@ function PlaceDetail({
       {"day" in place && place.day != null && (
         <p className="map-place-card-meta">Day {place.day}</p>
       )}
+      {"hours" in place && place.hours && (
+        <p className="map-place-card-meta">{place.hours}</p>
+      )}
+      {"address" in place && place.address && (
+        <p className="map-place-card-meta">{place.address}</p>
+      )}
       {place.notes && <p className="map-place-card-notes">{place.notes}</p>}
       <p className="map-distance">
-        ≈ {formatDistanceKm(km)} from {ANTIGUA.name} (straight line)
+        ≈ {formatDistanceKm(km)} from {CITY_CENTER.name} center (straight line)
       </p>
       <PlaceActions
         place={{ name: place.name, lat: place.lat, lng: place.lng, address: place.address }}
         compact
-        onAskPedro={() => onAskPedro(pedroPrompt(place.name))}
+        onAskMateo={() => onAskMateo(mateoPrompt(place.name))}
       />
       {selected.kind === "pin" && (
         <button type="button" className="map-remove-btn" onClick={() => onRemovePin(selected.pin.id)}>

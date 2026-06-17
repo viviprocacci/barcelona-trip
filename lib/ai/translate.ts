@@ -1,7 +1,7 @@
 import { callClaude, getApiKey, getModel } from "./anthropic";
 import { estimateCostUsd } from "./types";
 
-const TRANSLATE_SYSTEM = `You translate for a traveler in Guatemala. Reply with ONLY the translation — no quotes, labels, or explanation. Use natural Guatemalan/Latin American Spanish when translating to Spanish.`;
+const TRANSLATE_SYSTEM = `You translate for a traveler in Barcelona. Reply with ONLY the translation — no quotes, labels, or explanation. Use natural Spanish (Spain) when translating to Spanish; Catalan is fine if the user asks for it.`;
 
 async function myMemoryTranslate(text: string, from: string, to: string): Promise<string> {
   const url = new URL("https://api.mymemory.translated.net/get");
@@ -34,7 +34,7 @@ export async function runTranslate(
     const apiKey = getApiKey(env);
     if (!apiKey) throw new Error("AI translation requires ANTHROPIC_API_KEY");
 
-    const target = to === "es" ? "Spanish (Guatemala)" : "English";
+    const target = to === "es" ? "Spanish (Spain / Barcelona)" : "English";
     const result = await callClaude(
       apiKey,
       getModel(env),

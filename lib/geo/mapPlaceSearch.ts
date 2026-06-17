@@ -26,10 +26,10 @@ function fromGeocode(query: string, hit: GeocodeResult): MapPlaceResult {
 
 const QUERY_VARIANTS = (q: string) => [
   q,
-  `${q}, Antigua Guatemala`,
-  `${q}, Panajachel`,
-  `${q}, Lake Atitlán`,
-  `${q}, Guatemala City`,
+  `${q}, Barcelona`,
+  `${q}, Eixample, Barcelona`,
+  `${q}, Gothic Quarter, Barcelona`,
+  `${q}, Montserrat, Spain`,
 ];
 
 export async function runMapPlaceSearch(query: string): Promise<MapPlaceResult> {
@@ -48,5 +48,5 @@ export async function runMapPlaceSearch(query: string): Promise<MapPlaceResult> 
     if (hit) return fromGeocode(q, hit);
   }
 
-  throw new Error(`Couldn't find "${q}" on the map. Try name + town (e.g. Cerro Tzankujil, San Marcos).`);
+  throw new Error(`Couldn't find "${q}" on the map. Try name + neighborhood (e.g. Sagrada Família, Barcelona).`);
 }

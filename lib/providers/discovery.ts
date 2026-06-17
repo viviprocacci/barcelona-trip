@@ -12,7 +12,7 @@ export async function searchActivities(
   env: Record<string, string | undefined>,
 ): Promise<ProviderHit[] | null> {
   const when = params.tripStart ? ` near ${params.tripStart}` : "";
-  const where = params.location ? ` in ${params.location}` : " in Guatemala";
+  const where = params.location ? ` in ${params.location}` : " in Barcelona";
 
   return exaSearch(
     {

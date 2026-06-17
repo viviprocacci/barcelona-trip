@@ -1,4 +1,4 @@
-import { isInGuatemala } from "./haversine";
+import { isInBarcelonaRegion } from "./haversine";
 
 export interface GeocodeResult {
   lat: number;
@@ -8,7 +8,7 @@ export interface GeocodeResult {
 
 /** OpenStreetMap Nominatim — server-side only (rate limits + User-Agent). */
 const NOMINATIM_HEADERS = {
-  "User-Agent": "GuatemalaTripPWA/1.0 (personal trip planner)",
+  "User-Agent": "BarcelonaTripPWA/1.0 (personal trip planner)",
   Accept: "application/json",
 } as const;
 
@@ -22,7 +22,7 @@ function parseHit(hit: NominatimHit, fallback: string): GeocodeResult | null {
   if (!hit?.lat || !hit?.lon) return null;
   const lat = Number(hit.lat);
   const lng = Number(hit.lon);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !isInGuatemala(lat, lng)) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !isInBarcelonaRegion(lat, lng)) {
     return null;
   }
   return { lat, lng, displayName: hit.display_name ?? fallback };
@@ -37,10 +37,10 @@ async function nominatimSearch(
   if (!query) return [];
 
   const url = new URL("https://nominatim.openstreetmap.org/search");
-  url.searchParams.set("q", query.includes("Guatemala") ? query : `${query}, Guatemala`);
+  url.searchParams.set("q", query.includes("Barcelona") || query.includes("Spain") ? query : `${query}, Barcelona, Spain`);
   url.searchParams.set("format", "json");
   url.searchParams.set("limit", String(limit));
-  if (countryOnly) url.searchParams.set("countrycodes", "gt");
+  if (countryOnly) url.searchParams.set("countrycodes", "es");
 
   try {
     const res = await fetch(url.toString(), { headers: NOMINATIM_HEADERS });

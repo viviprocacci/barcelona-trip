@@ -1,4 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#f7f5f1"/>
-  <text x="256" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="220" fill="#9c4f3d">G</text>
+  <defs>
+    <clipPath id="r">
+      <rect width="512" height="512" rx="96"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+    <rect width="512" height="512" fill="#f7f5f1"/>
+    <rect y="432" width="512" height="80" fill="#FCD116"/>
+    <rect y="440" width="512" height="14" fill="#DA291C"/>
+    <rect y="468" width="512" height="14" fill="#DA291C"/>
+    <rect y="496" width="512" height="16" fill="#DA291C"/>
+    <text x="256" y="295" text-anchor="middle" font-family="Georgia, 'Cormorant Garamond', serif" font-size="220" font-weight="500" fill="#9c4f3d">B</text>
+  </g>
 </svg>

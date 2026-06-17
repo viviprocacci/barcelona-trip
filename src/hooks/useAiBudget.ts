@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { BUDGET_CAP_USD, estimateCostUsd, type TokenUsage } from "../../lib/ai/types";
 
-const STORAGE_KEY = "guatemala-ai-spent-usd";
-const BUDGET_SYNC_EVENT = "guatemala-budget-sync";
+const STORAGE_KEY = "barcelona-ai-spent-usd";
+const BUDGET_SYNC_EVENT = "barcelona-budget-sync";
 
 function readSpent(): number {
   try {

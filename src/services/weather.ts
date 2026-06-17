@@ -1,9 +1,9 @@
 import type { WeatherForecast, WeatherSpot } from "../types";
 
 export const WEATHER_SPOTS: WeatherSpot[] = [
-  { id: "antigua", label: "Antigua", lat: 14.5586, lng: -90.7344, elevation: 1540 },
-  { id: "acatenango", label: "Acatenango camp", lat: 14.501, lng: -90.876, elevation: 3900 },
-  { id: "atitlan", label: "Lake Atitlán", lat: 14.746, lng: -91.205, elevation: 1580 },
+  { id: "barcelona", label: "Barcelona", lat: 41.3874, lng: 2.1686, elevation: 12 },
+  { id: "montserrat", label: "Montserrat", lat: 41.5917, lng: 1.8372, elevation: 720 },
+  { id: "beach", label: "Barceloneta", lat: 41.3809, lng: 2.189, elevation: 0 },
 ];
 
 const WMO: Record<number, string> = {
@@ -38,7 +38,7 @@ export async function fetchWeather(spots: WeatherSpot[]): Promise<WeatherForecas
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max");
       url.searchParams.set("temperature_unit", "fahrenheit");
       url.searchParams.set("wind_speed_unit", "mph");
-      url.searchParams.set("timezone", "America/Guatemala");
+      url.searchParams.set("timezone", "Europe/Madrid");
       url.searchParams.set("forecast_days", "3");
 
       const res = await fetch(url.toString());
@@ -61,10 +61,11 @@ export async function fetchWeather(spots: WeatherSpot[]): Promise<WeatherForecas
 
 /** Which weather spots matter most for a given trip day */
 export function weatherSpotsForDay(tripDay: number): string[] {
-  if (tripDay <= 0 || tripDay > 5) return ["antigua", "acatenango", "atitlan"];
-  if (tripDay === 1) return ["antigua", "acatenango"];
-  if (tripDay === 2) return ["acatenango", "antigua"];
-  if (tripDay === 3) return ["acatenango", "antigua", "atitlan"];
-  if (tripDay >= 4) return ["atitlan", "antigua"];
-  return ["antigua", "atitlan"];
+  if (tripDay <= 0 || tripDay > 5) return ["barcelona", "montserrat", "beach"];
+  if (tripDay === 1) return ["barcelona"];
+  if (tripDay === 2) return ["barcelona"];
+  if (tripDay === 3) return ["montserrat", "barcelona"];
+  if (tripDay === 4) return ["beach", "barcelona"];
+  if (tripDay === 5) return ["barcelona"];
+  return ["barcelona"];
 }

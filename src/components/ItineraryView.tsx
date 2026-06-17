@@ -1,6 +1,6 @@
 import { MapPin } from "lucide-react";
 import { FileDown } from "lucide-react";
-import { ACATENANGO_PACK, DAYS, EXTRA_IDEAS, PACK_LIST } from "../data/trip";
+import { MONTserrat_ESSENTIALS, DAYS, EXTRA_IDEAS, PACK_LIST } from "../data/trip";
 import { exportItineraryPdf } from "../utils/exportItineraryPdf";
 import { ActivityRow } from "./ActivityRow";
 
@@ -48,9 +48,9 @@ export function ItineraryView() {
 
       <p className="section-label">Essentials</p>
       <div className="info-card">
-        <h3>Pack for Acatenango</h3>
+        <h3>Montserrat day trip</h3>
         <ul className="pack-list">
-          {ACATENANGO_PACK.map((item) => (
+          {MONTserrat_ESSENTIALS.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>

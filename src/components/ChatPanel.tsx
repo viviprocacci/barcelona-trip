@@ -10,14 +10,14 @@ const TRANSLATE_PATTERN = /translate|how do i say|cómo se dice|in spanish|what'
 
 export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
   const { context, budget } = useChatContext();
-  const { consumePedroSeed } = useNavigation();
+  const { consumeMateoSeed } = useNavigation();
   const seededRef = useRef(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
       role: "assistant",
       content:
-        "¡Bienvenidos! I'm Pedro, your Guatemala travel companion. Ask me for advice, ideas, timing, whatever you need. (For Spanish, the Español tab has you covered.)",
+        "¡Bienvenidos! I'm Mateo, your Barcelona travel companion. Ask me for advice, ideas, timing, whatever you need. (For Spanish, the Español tab has you covered.)",
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -70,7 +70,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
           id: crypto.randomUUID(),
           role: "assistant",
           content:
-            "Pedro juice is empty — you've hit the $5 limit on this device. Clear site data to refill.",
+            "Mateo juice is empty — you've hit the $5 limit on this device. Clear site data to refill.",
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -131,7 +131,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `Pedro hit a snag. ${e instanceof Error ? e.message : "Try again."}`,
+          content: `Mateo hit a snag. ${e instanceof Error ? e.message : "Try again."}`,
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -163,12 +163,12 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
 
   useEffect(() => {
     if (seededRef.current) return;
-    const seed = consumePedroSeed();
+    const seed = consumeMateoSeed();
     if (seed) {
       seededRef.current = true;
       void submit(seed);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount for map → Pedro handoff
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount for map → Mateo handoff
   }, []);
 
   return (
@@ -198,7 +198,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
           ))}
           {loading && (
             <div className="msg assistant thinking">
-              <span className="scan-dots">Pedro's on it</span>
+              <span className="scan-dots">Mateo's on it</span>
             </div>
           )}
         </div>
@@ -215,7 +215,7 @@ export function ChatPanel({ aiEnabled }: { aiEnabled: boolean }) {
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Pedro anything about your trip…"
+            placeholder="Ask Mateo anything about your trip…"
             disabled={loading}
             enterKeyHint="send"
           />

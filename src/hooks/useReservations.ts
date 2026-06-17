@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Reservation } from "../types";
 
-const STORAGE_KEY = "guatemala-trip-reservations";
+const STORAGE_KEY = "barcelona-trip-reservations";
 
 export function useReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);

@@ -39,10 +39,10 @@ const SEARCH_TYPES: { id: SearchType; label: string }[] = [
 ];
 
 const SEARCH_IDEAS = [
-  "Acatenango overnight tour (Ox or Wicho)",
-  "Bass fishing on Lake Atitlán",
-  "Antigua hostel under $25",
-  "Kayak Lake Atitlán early morning",
+  "Sagrada Família skip-the-line tickets",
+  "Eixample hotel under €100",
+  "Montserrat day trip from Barcelona",
+  "Tapas tour El Born evening",
 ];
 
 const QUICK_FILTERS = [
@@ -133,11 +133,11 @@ export function ExploreView() {
     setAiMessage(null);
 
     if (!aiEnabled) {
-      setAiMessage("Curated picks below. Ask Pedro when you're ready for live scan.");
+      setAiMessage("Curated picks below. Ask Mateo when you're ready for live scan.");
       return;
     }
     if (!budget.canUse) {
-      setAiMessage("Pedro juice is empty — $5 limit reached on this device. Clear site data to refill.");
+      setAiMessage("Mateo juice is empty — $5 limit reached on this device. Clear site data to refill.");
       return;
     }
 
@@ -197,7 +197,7 @@ export function ExploreView() {
               {exaEnabled
                 ? " · Exa-powered live scan"
                 : aiEnabled
-                  ? " · Pedro live scan"
+                  ? " · Mateo live scan"
                   : ""}
             </p>
           </div>
@@ -216,7 +216,7 @@ export function ExploreView() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Scan tours, stays, activities…"
-            aria-label="Pedro search explore"
+            aria-label="Mateo search explore"
           />
           <button
             type="submit"

@@ -47,7 +47,7 @@ export async function searchBookingViaExa(
 
   const hits = await exaSearch(
     {
-      query: `hotels ${loc} Guatemala${dates} price booking`,
+      query: `hotels ${loc} Barcelona${dates} price booking`,
       includeDomains: ["booking.com"],
       numResults: 6,
     },

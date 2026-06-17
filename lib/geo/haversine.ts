@@ -22,6 +22,12 @@ export function formatDistanceKm(km: number): string {
   return `${Math.round(km)} km`;
 }
 
+/** Barcelona metro area + Montserrat day-trip bounds. */
+export function isInBarcelonaRegion(lat: number, lng: number): boolean {
+  return lat >= 41.0 && lat <= 42.2 && lng >= 1.5 && lng <= 2.5;
+}
+
+/** @deprecated Use isInBarcelonaRegion */
 export function isInGuatemala(lat: number, lng: number): boolean {
-  return lat >= 13.5 && lat <= 18 && lng >= -92.5 && lng <= -88;
+  return isInBarcelonaRegion(lat, lng);
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { SavedMapPin } from "../types";
 
-const STORAGE_KEY = "guatemala-map-pins";
+const STORAGE_KEY = "barcelona-map-pins";
 
 export function useMapPins() {
   const [pins, setPins] = useState<SavedMapPin[]>([]);

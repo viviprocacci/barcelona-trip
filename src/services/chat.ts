@@ -1,8 +1,8 @@
 export const QUICK_PROMPTS = [
   { label: "Today", prompt: "What should I focus on today based on my trip day and what's already booked?" },
-  { label: "Food & cafés", prompt: "Where should I eat in Antigua or around the lake? Any must-tries?" },
-  { label: "Lake day", prompt: "What should I do on a day at Lake Atitlán?" },
-  { label: "Hike prep", prompt: "What should I know before Acatenango? Packing, altitude, timing?" },
+  { label: "Food & tapas", prompt: "Where should I eat in Barcelona? Best tapas bars and must-tries?" },
+  { label: "Gaudí day", prompt: "What should I know for Sagrada Família and Park Güell? Timing and tickets?" },
+  { label: "Montserrat", prompt: "How do I get to Montserrat? Trains, funiculars, and what to do there?" },
 ];
 
 /** Offline fallback when API unavailable */
@@ -13,37 +13,39 @@ export function localFallback(userMessage: string): string {
     return `Use the **Español** tab for offline phrase cards, instant translate, and speak-back.`;
   }
 
-  if (/acatenango|volcano|hike|fuego/i.test(q)) {
-    return `**Acatenango tips:**
+  if (/sagrada|gaudi|guell|modernist/i.test(q)) {
+    return `**Gaudí tips:**
 
-- Book **Ox Expeditions** or **Wicho & Charlie's**. Skip street touts.
-- Layers, gloves, 4L+ water; camp gets cold and windy
-- Typical overnight tour ~$50–80 USD`;
+- Book **Sagrada Família** and **Park Güell** online — same-day often sold out
+- Sagrada morning light through stained glass is best
+- Passeig de Gràcia: Casa Batlló + Casa Milà walkable in one afternoon`;
   }
 
-  if (/lake|atitl|lancha|boat|casa del mundo/i.test(q)) {
-    return `**Lake Atitlán:**
+  if (/montserrat|monastery|cremallera/i.test(q)) {
+    return `**Montserrat:**
 
-- Kayak, cliff jumps, town-hopping between villages
-- Public lanchas are cheap. Last boats ~6–7pm.
-- **La Casa del Mundo** is boat-only. Book direct if you're staying there.`;
+- R5 train from **Plaça Espanya** (~1 hr) + rack railway (Cremallera) or cable car
+- ToT Montserrat ticket bundles train + mountain transport
+- Start early; hike Sant Jeroni or take Sant Joan funicular for views`;
   }
 
-  if (/food|eat|restaurant|café|cafe/i.test(q)) {
-    return `**Eating in Guatemala:**
+  if (/food|eat|restaurant|tapas|vermut/i.test(q)) {
+    return `**Eating in Barcelona:**
 
-- Antigua: street tostadas, Rincón Tipico, Café Condesa
-- Lake: fresh fish in Panajachel, San Marcos cafés
-- Carry cash (quetzales). Many spots don't take cards.`;
+- Tapas crawl in **El Born** or **Gràcia** — dinner starts ~9pm
+- Cervecería Catalana, Cal Pep, Bar del Pla for classics
+- Vermut Sunday tradition in Gràcia plazas
+- Carry euros — some bars are cash-only`;
   }
 
-  if (/shuttle|transport|airport|gua/i.test(q)) {
+  if (/metro|transport|airport|bcn|aerobus/i.test(q)) {
     return `**Getting around:**
 
-- Antigua ↔ Lake: GuateGo or hostel desk, ~$25–35
-- Lake → GUA Day 5: leave early, 3+ hr buffer before your flight
-- Uber/InDrive in Antigua; negotiate tuk-tuks`;
+- **T-casual** (10 rides) or **Hola BCN** at any metro station
+- Aerobús Plaça Catalunya ↔ BCN, or metro L9 Sud
+- Uber/Cabify/Bolt work well; watch for metro strike days
+- Walk the Gothic Quarter — driving is pointless in centro`;
   }
 
-  return `Pedro works offline here. Connect API keys for live chat. **Today**, **Explore**, **Plan**, and **Español** still work without keys. ¡Pregúntame lo que quieras!`;
+  return `Mateo works offline here. Connect API keys for live chat. **Today**, **Explore**, **Plan**, and **Español** still work without keys. ¡Pregúntame lo que quieras!`;
 }

@@ -43,7 +43,7 @@ export function buildSystemPrompt(ctx?: ChatContext): string {
   return parts.join("");
 }
 
-export const EXPLORE_SEARCH_SYSTEM = `You are Pedro, a Guatemala travel search assistant. You synthesize live provider data into actionable picks.
+export const EXPLORE_SEARCH_SYSTEM = `You are Mateo, a Barcelona travel search assistant. You synthesize live provider data into actionable picks.
 
 DATA SOURCES (when provided):
 - Expedia Rapid → live hotel rates
@@ -55,7 +55,7 @@ RULES:
 - For HOTELS: cite Expedia/Booking data first
 - For ACTIVITIES: cite Exa discovery results
 - Max 5 items. Be honest if data is thin.
-- Trip context: 5-day route Antigua → Acatenango → Lake Atitlán when relevant.
+- Trip context: 5-day Barcelona route (Gothic Quarter → Gaudí → Montserrat → Beach → Markets) when relevant.
 
 OUTPUT: Reply with ONLY raw JSON — no markdown, no code fences, no text before or after:
 {
@@ -64,8 +64,8 @@ OUTPUT: Reply with ONLY raw JSON — no markdown, no code fences, no text before
   "items": [
     {
       "name": "Operator or place name",
-      "price": "$X–Y/day or /night",
-      "group": "Optional section label e.g. SALTWATER or BUDGET HOTELS",
+      "price": "€X–Y/day or /night",
+      "group": "Optional section label e.g. TAPAS BARS or BUDGET HOTELS",
       "links": [{"label": "site.com", "url": "https://..."}],
       "book": "Plain-text booking note if no URL",
       "why": "One line why it's worth it",
@@ -75,7 +75,7 @@ OUTPUT: Reply with ONLY raw JSON — no markdown, no code fences, no text before
   "footer": "Optional reality check or timing tip"
 }`;
 
-export const ITINERARY_PLAN_SYSTEM = `You are Pedro, a Guatemala trip planner. You merge live hotel data (Expedia Rapid, Booking.com) and Exa activity discovery into a coherent itinerary.
+export const ITINERARY_PLAN_SYSTEM = `You are Mateo, a Barcelona trip planner. You merge live hotel data (Expedia Rapid, Booking.com) and Exa activity discovery into a coherent itinerary.
 
 RULES:
 - Output JSON only (same schema as search results) with items that can be added to the trip
@@ -121,7 +121,7 @@ export function buildExploreSearchPrompt(opts: {
   lines.push(
     opts.searchBlock
       ? `PROVIDER RESULTS:\n${opts.searchBlock}`
-      : "No live provider data — use known Guatemala pricing and name sites to check.",
+      : "No live provider data — use known Barcelona pricing and name sites to check.",
   );
   lines.push("Return JSON only with title, intro, items array, and optional footer.");
   return lines.join("\n\n");
@@ -155,7 +155,7 @@ export function buildItineraryPlanPrompt(opts: {
   lines.push(
     opts.searchBlock
       ? `PROVIDER RESULTS:\n${opts.searchBlock}`
-      : "No live providers — suggest from known Guatemala trip knowledge.",
+      : "No live providers — suggest from known Barcelona trip knowledge.",
   );
   lines.push("Return JSON itinerary suggestions (title, intro, items with group=Day N, footer).");
   return lines.join("\n\n");

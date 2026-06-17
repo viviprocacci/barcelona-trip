@@ -1,23 +1,17 @@
-import day1 from "./guatemala1.jpg";
-import day2 from "./guatemala 2.jpg";
-import day3 from "./guatemala 3.jpg";
-import day4 from "./guatemala4.jpg";
-import day5 from "./guatemala5.jpg";
-
-/** Trip day → bundled image URL. */
+/** Trip day → hero image URL (Barcelona). */
 export const DAY_IMAGES: Record<1 | 2 | 3 | 4 | 5, string> = {
-  1: day1,
-  2: day2,
-  3: day3,
-  4: day4,
-  5: day5,
+  1: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=1200&q=80",
+  2: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=1200&q=80",
+  3: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=1200&q=80",
+  4: "https://images.unsplash.com/photo-1555993539-1732b0258235?w=1200&q=80",
+  5: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&q=80",
 };
 
 /** Static crop focus for 16:9 hero strip (tuned per photo). */
 export const DAY_IMAGE_FOCUS: Record<1 | 2 | 3 | 4 | 5, string> = {
-  1: "50% 40%", // Santa Catalina arch + Agua
-  2: "68% 56%", // Woman on deck + Lake Atitlán volcanoes
-  3: "48% 62%", // Fuego eruption + hiker
-  4: "52% 66%", // Cliff jumpers + turquoise water
-  5: "46% 54%", // Hammock terrace + San Pedro volcano
+  1: "50% 45%",
+  2: "50% 35%",
+  3: "50% 40%",
+  4: "50% 55%",
+  5: "50% 50%",
 };

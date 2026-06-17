@@ -30,7 +30,7 @@ export function exportReservationsPdf(reservations: Reservation[]) {
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Guatemala Trip · Reservations</title>
+  <title>Barcelona Trip · Reservations</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -51,7 +51,7 @@ export function exportReservationsPdf(reservations: Reservation[]) {
   </style>
 </head>
 <body>
-  <h1>Guatemala Trip</h1>
+  <h1>Barcelona Trip</h1>
   <p class="sub">Reservations · ${sorted.length} booking${sorted.length === 1 ? "" : "s"} · exported ${new Date().toLocaleDateString()}</p>
   ${
     sorted.length === 0

@@ -7,13 +7,13 @@ export function getNudges(tripDay: number, hour: number): Nudge[] {
   if (tripDay === 0) {
     nudges.push({
       id: "pre-trip",
-      text: "Trip hasn't started yet. Review your pack list and confirm Acatenango booking.",
+      text: "Trip hasn't started yet. Review your pack list and confirm Sagrada Família tickets.",
     });
     return nudges;
   }
 
   if (tripDay > 5) {
-    nudges.push({ id: "post-trip", text: "Safe travels home. Hope Guatemala was incredible." });
+    nudges.push({ id: "post-trip", text: "Safe travels home. Hope Barcelona was incredible." });
     return nudges;
   }
 
@@ -21,75 +21,74 @@ export function getNudges(tripDay: number, hour: number): Nudge[] {
     case 1:
       if (hour >= 18) {
         nudges.push({
-          id: "d1-pack",
-          text: "Pack your Acatenango bag tonight: layers, 4L+ water, hand warmers, buff.",
+          id: "d1-rest",
+          text: "Sleep early — Gaudí day tomorrow. Double-check Sagrada & Park Güell entry times.",
           urgency: "high",
         });
       }
       if (hour >= 20) {
         nudges.push({
-          id: "d1-sleep",
-          text: "Sleep early. Big hike tomorrow. Set alarm for shuttle.",
-          urgency: "high",
+          id: "d1-pickpocket",
+          text: "Keep bag in front in crowded alleys. Gothic Quarter after dark is magical but busy.",
         });
       }
       break;
     case 2:
       nudges.push({
-        id: "d2-water",
-        text: "Altitude day. Sip water constantly. Buff over mouth for volcanic dust.",
+        id: "d2-tickets",
+        text: "Timed entry at Sagrada — don't be late. Allow 90 min inside.",
         urgency: "high",
       });
-      if (hour >= 16) {
+      if (hour >= 14) {
         nudges.push({
-          id: "d2-cold",
-          text: "Camp tonight is near freezing. Sleep in all layers + hand warmers.",
-          urgency: "high",
+          id: "d2-park",
+          text: "Park Güell is uphill — bus 24 or metro + walk. Monumental zone needs a ticket.",
         });
       }
       break;
     case 3:
-      if (hour < 10) {
+      if (hour < 8) {
         nudges.push({
-          id: "d3-descend",
-          text: "Aim to be off the mountain by 10am, then massage & rehydrate in Antigua.",
+          id: "d3-early",
+          text: "Catch an early R5 from Plaça Espanya — Montserrat crowds build by late morning.",
+          urgency: "high",
         });
       }
-      if (hour >= 14) {
+      if (hour >= 16) {
         nudges.push({
-          id: "d3-lancha",
-          text: "Last lanchas run ~6–7pm. Don't miss the boat to La Casa del Mundo.",
-          urgency: "high",
+          id: "d3-layers",
+          text: "Mountain is cooler than the city. You'll appreciate those layers on the way down.",
         });
       }
       break;
     case 4:
       if (hour < 10) {
         nudges.push({
-          id: "d4-morning",
-          text: "Kayak or fish early. Lake gets windy by afternoon.",
+          id: "d4-beach",
+          text: "Hit the beach before 10am — best swim window before crowds and heat peak.",
         });
       }
-      if (hour >= 12 && hour < 16) {
+      if (hour >= 18) {
         nudges.push({
-          id: "d4-tzankujil",
-          text: "Cerro Tzankujil closes around 4pm. Q15 entry, cliff jump with volcano views.",
+          id: "d4-sunset",
+          text: "Head to Bunkers del Carmel for sunset — bring water and arrive 45 min early.",
         });
       }
       break;
     case 5:
-      if (hour < 12) {
+      if (hour < 10) {
         nudges.push({
-          id: "d5-leave",
-          text: "Leave the lake by midday. 3+ hours to GUA for your evening flight.",
+          id: "d5-boqueria",
+          text: "La Boqueria is best before 10am — juice stands and jamón without the crush.",
+        });
+      }
+      if (hour >= 12) {
+        nudges.push({
+          id: "d5-airport",
+          text: "Allow 2+ hours before international flights. Aerobús or metro L9 to BCN.",
           urgency: "high",
         });
       }
-      nudges.push({
-        id: "d5-buffer",
-        text: "Bumpy roads. Build in extra buffer to the airport.",
-        urgency: hour >= 14 ? "high" : "normal",
-      });
       break;
   }
 

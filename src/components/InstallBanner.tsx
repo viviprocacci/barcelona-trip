@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Download, Share, X } from "lucide-react";
 
-const DISMISS_KEY = "guatemala-install-dismissed";
+const DISMISS_KEY = "barcelona-install-dismissed";
 
 function isIOS(): boolean {
   return /iPad|iPhone|iPod/.test(navigator.userAgent);

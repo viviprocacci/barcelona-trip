@@ -11,9 +11,25 @@ export function appleMapsUrl(place: GeoPlace): string {
   return `https://maps.apple.com/?ll=${place.lat},${place.lng}&q=${encodeURIComponent(place.name)}`;
 }
 
+/** Google Maps walking directions to destination */
+export function googleMapsWalkingDirectionsUrl(place: GeoPlace): string {
+  const dest = place.address
+    ? encodeURIComponent(place.address)
+    : `${place.lat},${place.lng}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=walking`;
+}
+
 /** Google Maps directions to destination */
 export function googleMapsDirectionsUrl(place: GeoPlace): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}&travelmode=driving`;
+  const dest = place.address
+    ? encodeURIComponent(place.address)
+    : `${place.lat},${place.lng}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+}
+
+/** Apple Maps walking directions */
+export function appleMapsWalkingUrl(place: GeoPlace): string {
+  return `https://maps.apple.com/?daddr=${place.lat},${place.lng}&dirflg=w`;
 }
 
 /** Weather.com forecast for coordinates */
@@ -31,7 +47,7 @@ export function wttrUrl(place: GeoPlace): string {
  * @see https://developer.uber.com/docs/riders/ride-requests/tutorials/deep-links/introduction
  */
 export function uberUrl(place: GeoPlace): string {
-  const address = place.address ?? `${place.name}, Guatemala`;
+  const address = place.address ?? `${place.name}, Barcelona, Spain`;
   const params = [
     "action=setPickup",
     "pickup=my_location",
@@ -43,9 +59,9 @@ export function uberUrl(place: GeoPlace): string {
   return `https://m.uber.com/ul/?${params.join("&")}`;
 }
 
-/** InDrive — widely used in Guatemala */
+/** Cabify / Bolt — common ride apps in Barcelona */
 export function inDriveUrl(place: GeoPlace): string {
-  const address = place.address ?? `${place.name}, Guatemala`;
+  const address = place.address ?? `${place.name}, Barcelona, Spain`;
   const params = new URLSearchParams({
     lat: String(place.lat),
     lon: String(place.lng),

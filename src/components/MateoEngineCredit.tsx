@@ -1,5 +1,5 @@
-/** Subtle technology credit — Pedro is the companion, Claude is the engine. */
-export function PedroEngineCredit({
+/** Subtle technology credit — Mateo is the companion, Claude is the engine. */
+export function MateoEngineCredit({
   className,
   inline,
 }: {

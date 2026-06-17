@@ -54,7 +54,7 @@ export async function gatherSearchSources(
 
   if (opts.type === "general") {
     const hotels = await gatherHotelSources(
-      { ...hotelParams, query: `${opts.query} OR ${hotelParams.location ?? "Antigua Guatemala"} hotel` },
+      { ...hotelParams, query: `${opts.query} OR ${hotelParams.location ?? "Barcelona"} hotel` },
       env,
     );
     for (const b of hotels.blocks) {
@@ -65,7 +65,7 @@ export async function gatherSearchSources(
 
   if (!blocks.length) {
     const tavily = await tavilySearch(
-      `${opts.query} Guatemala travel ${opts.tripStart ?? ""}`,
+      `${opts.query} Barcelona travel ${opts.tripStart ?? ""}`,
       env,
     );
     if (tavily) {
@@ -89,16 +89,16 @@ export async function gatherSearchSources(
       ? blocks
           .map((b) => `### ${b.label}\n${b.hits.map((h) => `- ${h.title}: ${h.snippet}${h.priceHint ? ` (${h.priceHint})` : ""}${h.url ? `\n  ${h.url}` : ""}`).join("\n")}`)
           .join("\n\n")
-      : "No live provider results — use curated app data and typical Guatemala pricing.";
+      : "No live provider results — use curated app data and typical Barcelona pricing.";
 
   return { blocks, text, sourcesUsed };
 }
 
 function inferLocation(query: string): string | undefined {
   const q = query.toLowerCase();
-  if (/atitl|lake|panajachel|santa cruz|san marcos/i.test(q)) return "Lake Atitlán";
-  if (/acatenango|fuego|hike/i.test(q)) return "Acatenango";
-  if (/antigua/i.test(q)) return "Antigua Guatemala";
-  if (/gua|airport/i.test(q)) return "Guatemala City";
+  if (/montserrat/i.test(q)) return "Montserrat";
+  if (/sagrada|gaudi|guell|eixample|gracia|gothic|born/i.test(q)) return "Barcelona";
+  if (/sitges|beach|barceloneta/i.test(q)) return "Barcelona";
+  if (/bcn|airport|prat/i.test(q)) return "Barcelona";
   return undefined;
 }

@@ -6,6 +6,7 @@ import {
   MapPin,
   Radar,
   Sparkles,
+  Store,
   Wallet,
 } from "lucide-react";
 import type { TabId } from "./types";
@@ -14,6 +15,7 @@ import { TodayView } from "./components/TodayView";
 import { ExploreView } from "./components/ExploreView";
 import { ItineraryView } from "./components/ItineraryView";
 import { PhrasesView } from "./components/PhrasesView";
+import { NearbyView } from "./components/NearbyView";
 import { WalletView } from "./components/WalletView";
 import { TripMap } from "./components/TripMap";
 
@@ -23,11 +25,12 @@ const AiView = lazy(() =>
 const TABS: { id: TabId; label: string; icon: typeof Sparkles }[] = [
   { id: "today", label: "Today", icon: Sparkles },
   { id: "explore", label: "Explore", icon: Compass },
+  { id: "nearby", label: "Nearby", icon: Store },
   { id: "itinerary", label: "Plan", icon: Calendar },
   { id: "phrases", label: "Español", icon: Languages },
   { id: "map", label: "Map", icon: MapPin },
   { id: "wallet", label: "Wallet", icon: Wallet },
-  { id: "chat", label: "Pedro", icon: Radar },
+  { id: "chat", label: "Mateo", icon: Radar },
 ];
 
 function AppShell() {
@@ -36,11 +39,12 @@ function AppShell() {
   const titles: Record<TabId, string> = {
     today: "Today",
     explore: "Explore",
+    nearby: "Nearby",
     itinerary: "Full plan",
     phrases: "Español",
     map: "Map",
     wallet: "Wallet",
-    chat: "Pedro",
+    chat: "Mateo",
   };
 
   return (
@@ -48,7 +52,7 @@ function AppShell() {
       <div className="app">
         <header className="app-bar">
           <div>
-            <span className="app-bar-eyebrow">Guatemala</span>
+            <span className="app-bar-eyebrow">Barcelona</span>
             <h1 className="app-bar-title">{titles[tab]}</h1>
           </div>
         </header>
@@ -57,6 +61,7 @@ function AppShell() {
           <Suspense fallback={<p className="tab-loading">Loading…</p>}>
             {tab === "today" && <TodayView />}
             {tab === "explore" && <ExploreView />}
+            {tab === "nearby" && <NearbyView />}
             {tab === "itinerary" && <ItineraryView />}
             {tab === "phrases" && <PhrasesView />}
             {tab === "map" && <TripMap />}

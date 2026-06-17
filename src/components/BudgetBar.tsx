@@ -1,7 +1,7 @@
 import { Droplets } from "lucide-react";
 import { BUDGET_CAP_USD } from "../../lib/ai/types";
 import { formatBudgetUsd } from "../hooks/useAiBudget";
-import { PedroEngineCredit } from "./PedroEngineCredit";
+import { MateoEngineCredit } from "./MateoEngineCredit";
 
 interface BudgetBarProps {
   spentUsd: number;
@@ -25,9 +25,9 @@ export function BudgetBar({
   return (
     <div
       className={[
-        "pedro-juice",
-        compact && "pedro-juice--compact",
-        low && "pedro-juice--low",
+        "mateo-juice",
+        compact && "mateo-juice--compact",
+        low && "mateo-juice--low",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -35,26 +35,26 @@ export function BudgetBar({
       aria-valuenow={Math.round(juicePercent)}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={`Pedro juice: $${formatBudgetUsd(remainingUsd)} left of $${BUDGET_CAP_USD} limit`}
+      aria-label={`Mateo juice: $${formatBudgetUsd(remainingUsd)} left of $${BUDGET_CAP_USD} limit`}
     >
-      <div className="pedro-juice-top">
-        <span className="pedro-juice-label">
-          <Droplets size={13} strokeWidth={2} className="pedro-juice-icon" />
-          Pedro juice
-          <span className="pedro-juice-limit">${BUDGET_CAP_USD} limit</span>
+      <div className="mateo-juice-top">
+        <span className="mateo-juice-label">
+          <Droplets size={13} strokeWidth={2} className="mateo-juice-icon" />
+          Mateo juice
+          <span className="mateo-juice-limit">${BUDGET_CAP_USD} limit</span>
         </span>
-        <span className="pedro-juice-amount">${formatBudgetUsd(remainingUsd)} left</span>
+        <span className="mateo-juice-amount">${formatBudgetUsd(remainingUsd)} left</span>
       </div>
-      <div className="pedro-juice-track">
-        <div className="pedro-juice-fill" style={{ width: `${juicePercent}%` }} />
+      <div className="mateo-juice-track">
+        <div className="mateo-juice-fill" style={{ width: `${juicePercent}%` }} />
       </div>
       {!compact && (
-        <p className="pedro-juice-hint">
+        <p className="mateo-juice-hint">
           {showUsed && <>${formatBudgetUsd(spentUsd)} used</>}
           {showUsed && webSearch && " · "}
           {webSearch && "live web scan on"}
           {(showUsed || webSearch) && " · "}
-          <PedroEngineCredit inline />
+          <MateoEngineCredit inline />
         </p>
       )}
     </div>

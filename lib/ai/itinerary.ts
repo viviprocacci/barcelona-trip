@@ -19,7 +19,7 @@ export async function runItineraryPlan(
   const apiKey = getApiKey(env);
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured on server");
 
-  const query = req.query?.trim() || "Build my Guatemala trip plan";
+  const query = req.query?.trim() || "Build my Barcelona trip plan";
   const start = req.context?.tripStartDate ?? "";
 
   const sources = await gatherSearchSources(

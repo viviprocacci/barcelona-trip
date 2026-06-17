@@ -4,18 +4,18 @@ import type { HotelSearchParams, ProviderHit } from "./types";
 const EXPEDIA_TEST = "https://test.ean.com";
 const EXPEDIA_PROD = "https://api.ean.com";
 
-/** Guatemala trip anchors — set EXPEDIA_PROPERTY_IDS_* in env after partner onboarding */
+/** Barcelona trip anchors — set EXPEDIA_PROPERTY_IDS_* in env after partner onboarding */
 function getPropertyIds(
   env: Record<string, string | undefined>,
   query: string,
   location?: string,
 ): string[] {
-  const antigua = envIds(env.EXPEDIA_PROPERTY_IDS_ANTIGUA, ["19248"]);
-  const lake = envIds(env.EXPEDIA_PROPERTY_IDS_LAKE, []);
+  const city = envIds(env.EXPEDIA_PROPERTY_IDS_BARCELONA, []);
+  const beach = envIds(env.EXPEDIA_PROPERTY_IDS_BEACH, []);
   const hay = `${query} ${location ?? ""}`.toLowerCase();
-  if (/atitl|lake|panajachel|santa cruz/i.test(hay)) return lake;
-  if (/antigua|guatemala city|gua/i.test(hay)) return antigua;
-  return [...antigua, ...lake];
+  if (/beach|barceloneta|sitges/i.test(hay)) return beach;
+  if (/barcelona|eixample|gothic|born|gracia/i.test(hay)) return city;
+  return [...city, ...beach];
 }
 
 function expediaBase(env: Record<string, string | undefined>): string {
@@ -81,7 +81,7 @@ export async function searchExpediaHotels(
       headers: {
         Accept: "application/json",
         Authorization: authHeader(apiKey, secret),
-        "User-Agent": "GuatemalaTrip/1.0",
+        "User-Agent": "BarcelonaTrip/1.0",
       },
     });
 

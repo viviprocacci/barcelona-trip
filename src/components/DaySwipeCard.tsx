@@ -11,7 +11,7 @@ const SWIPE_THRESHOLD = 72;
 const MAX_ROTATION = 14;
 const FLY_MS = 340;
 const NUDGE_MS = 30_000;
-const NUDGE_DONE_KEY = "guatemala-today-nudge-done";
+const NUDGE_DONE_KEY = "barcelona-today-nudge-done";
 
 type DaySwipeCardProps = {
   canPrev: boolean;

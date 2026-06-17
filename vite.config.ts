@@ -14,9 +14,9 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["icon.svg", "favicon.ico"],
       manifest: {
-        name: "Guatemala Trip",
-        short_name: "Guatemala",
-        description: "5-day itinerary — Acatenango & Lake Atitlán",
+        name: "Barcelona Trip",
+        short_name: "Barcelona",
+        description: "5-day itinerary — Gaudí, Montserrat & the Mediterranean",
         theme_color: "#1a1816",
         background_color: "#f5f0e8",
         display: "standalone",

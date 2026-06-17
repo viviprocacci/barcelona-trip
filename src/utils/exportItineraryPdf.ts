@@ -1,4 +1,4 @@
-import { ACATENANGO_PACK, DAYS, PACK_LIST } from "../data/trip";
+import { MONTserrat_ESSENTIALS, DAYS, PACK_LIST } from "../data/trip";
 
 function escapeHtml(s: string): string {
   return s
@@ -36,7 +36,7 @@ export function exportItineraryPdf() {
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Guatemala · 5 Day Itinerary</title>
+  <title>Barcelona · 5 Day Itinerary</title>
   <style>
     @page { margin: 1.2cm; }
     * { box-sizing: border-box; }
@@ -123,14 +123,14 @@ export function exportItineraryPdf() {
 </head>
 <body>
   <header>
-    <h1>Guatemala</h1>
-    <p class="tagline">Acatenango overnight · Lake Atitlán</p>
-    <p class="meta">5 days · 3 regions · Personal itinerary</p>
+    <h1>Barcelona</h1>
+    <p class="tagline">Gaudí · Montserrat · Mediterranean</p>
+    <p class="meta">5 days · City & coast · Personal itinerary</p>
   </header>
   ${daysHtml}
   <div class="pack-section">
-    <h3>Acatenango essentials</h3>
-    <ul>${ACATENANGO_PACK.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
+    <h3>Montserrat essentials</h3>
+    <ul>${MONTserrat_ESSENTIALS.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul>
     <h3>Full pack list</h3>
     <div class="pack-grid">
       ${PACK_LIST.map((p) => `<span class="pack-chip">${escapeHtml(p.item)}</span>`).join("")}

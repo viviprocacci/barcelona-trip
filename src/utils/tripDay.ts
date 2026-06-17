@@ -1,4 +1,4 @@
-const STORAGE_KEY = "guatemala-trip-start";
+const STORAGE_KEY = "barcelona-trip-start";
 
 export function loadTripStart(): string | null {
   try {

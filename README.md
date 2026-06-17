@@ -1,6 +1,6 @@
-# Guatemala Trip Planner
+# Barcelona Trip Planner
 
-5-day Antigua → Acatenango → Lake Atitlán app with Today mode, Explore, AI chat, deal hunter, wallet, map, and Spanish phrases.
+5-day Gothic Quarter → Gaudí → Montserrat → beach app with Today mode, Explore, AI chat, deal hunter, wallet, map, and Spanish phrases.
 
 ## Deploy to Vercel (share with friends)
 

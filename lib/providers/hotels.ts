@@ -38,7 +38,7 @@ export async function gatherHotelSources(
         : "";
     const exaHits = await exaSearch(
       {
-        query: `hotels hostels ${loc} Guatemala${dates} price review`,
+        query: `hotels hostels ${loc} Barcelona${dates} price review`,
         numResults: 8,
         includeDomains: ["booking.com", "hotels.com", "hostelworld.com"],
       },

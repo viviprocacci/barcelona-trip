@@ -1,4 +1,20 @@
-export type TabId = "today" | "explore" | "itinerary" | "phrases" | "map" | "wallet" | "chat";
+export type TabId =
+  | "today"
+  | "explore"
+  | "itinerary"
+  | "phrases"
+  | "nearby"
+  | "map"
+  | "wallet"
+  | "chat";
+
+export interface MapFocus {
+  lat: number;
+  lng: number;
+  zoom?: number;
+  nearbyId?: string;
+  placeId?: string;
+}
 
 export type ReservationCategory =
   | "flight"
@@ -59,7 +75,7 @@ export interface Phrase {
   english: string;
 }
 
-export type PhraseCategory = "lancha" | "taxi" | "restaurant" | "altitude" | "general";
+export type PhraseCategory = "metro" | "taxi" | "restaurant" | "catalan" | "general";
 
 export interface SavedMapPin {
   id: string;

@@ -301,7 +301,7 @@ export function PhrasesView() {
                 disabled={!budget.canUse}
               />
               <Sparkles size={14} />
-              Natural Guatemalan Spanish (enhanced)
+              Natural Spanish / Catalan hints (enhanced)
               {!budget.canUse && " (no juice)"}
             </label>
           )}
