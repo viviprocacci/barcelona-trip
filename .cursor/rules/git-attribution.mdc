@@ -1,0 +1,12 @@
+---
+description: Keep git commits attributed only to the user, never Cursor
+alwaysApply: true
+---
+
+# Git commit attribution
+
+When creating commits from the agent:
+
+- Never add `Co-authored-by: Cursor`, `Made-with: Cursor`, or any Cursor/tool attribution to commit messages or PRs.
+- Use plain `git commit -m` messages only — no `--trailer` flags.
+- Commits should appear as the user only (Vivian Procacci / viviprocacci@gmail.com).

@@ -2949,6 +2949,7 @@ button, input, select, textarea { font-family: inherit; }
 
 .nearby-ref-toggle {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   padding: 0.2rem;
   background: var(--surface);
@@ -2956,18 +2957,24 @@ button, input, select, textarea { font-family: inherit; }
   border-radius: 999px;
 }
 
+.nearby-ref-toggle--wrap {
+  justify-content: flex-end;
+  max-width: 100%;
+}
+
 .nearby-ref-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem 0.65rem;
   border: none;
   border-radius: 999px;
   background: transparent;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--muted);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .nearby-ref-btn.active {
@@ -2979,6 +2986,52 @@ button, input, select, textarea { font-family: inherit; }
   margin: 0;
   font-size: 0.6875rem;
   color: var(--muted);
+  line-height: 1.4;
+}
+
+.nearby-custom-form {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+}
+
+.nearby-custom-icon {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.nearby-custom-form input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+.nearby-custom-form input:focus {
+  outline: none;
+}
+
+.nearby-custom-btn {
+  flex-shrink: 0;
+  padding: 0.35rem 0.7rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nearby-custom-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .nearby-section-title {

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Clock, Loader2, MapPin, Navigation } from "lucide-react";
+import { useMemo, useState, type FormEvent } from "react";
+import { Clock, Loader2, MapPin, Navigation, Search } from "lucide-react";
 import {
   NEARBY_CATEGORIES,
   NEARBY_CATEGORY_LABELS,
@@ -21,7 +21,21 @@ function sortByDistance(items: NearbyPlace[], ref: { lat: number; lng: number })
 
 export function NearbyView() {
   const [category, setCategory] = useState<NearbyCategory | "all">("all");
-  const { point, label, mode, setMode, gpsLoading, gpsError, loaded } = useLocationRef();
+  const [customInput, setCustomInput] = useState("");
+  const {
+    point,
+    mode,
+    setMode,
+    referenceAddress,
+    distanceFromLabel,
+    custom,
+    setCustomAddress,
+    customLoading,
+    customError,
+    gpsLoading,
+    gpsError,
+    loaded,
+  } = useLocationRef();
   const { focusMap } = useNavigation();
 
   const sections = useMemo(() => {
@@ -41,6 +55,19 @@ export function NearbyView() {
     focusMap({ lat: item.lat, lng: item.lng, zoom: 16, nearbyId: item.id });
   };
 
+  const handleCustomSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const ok = await setCustomAddress(customInput);
+    if (ok) setCustomInput("");
+  };
+
+  const hint =
+    mode === "gps" && gpsError
+      ? gpsError
+      : mode === "custom" && customError
+        ? customError
+        : `Using ${referenceAddress} as reference point`;
+
   return (
     <div className="nearby-view">
       <header className="nearby-hero">
@@ -49,11 +76,18 @@ export function NearbyView() {
         </p>
         <div className="nearby-ref-bar">
           <span className="nearby-ref-label">Distance from</span>
-          <div className="nearby-ref-toggle">
+          <div className="nearby-ref-toggle nearby-ref-toggle--wrap">
             <button
               type="button"
-              className={`nearby-ref-btn ${mode === "base" ? "active" : ""}`}
-              onClick={() => setMode("base")}
+              className={`nearby-ref-btn ${mode === "home" ? "active" : ""}`}
+              onClick={() => setMode("home")}
+            >
+              Home
+            </button>
+            <button
+              type="button"
+              className={`nearby-ref-btn ${mode === "school" ? "active" : ""}`}
+              onClick={() => setMode("school")}
             >
               School
             </button>
@@ -66,13 +100,31 @@ export function NearbyView() {
               {gpsLoading ? <Loader2 size={14} className="spin" /> : <Navigation size={14} />}
               GPS
             </button>
+            <button
+              type="button"
+              className={`nearby-ref-btn ${mode === "custom" ? "active" : ""}`}
+              onClick={() => setMode("custom")}
+            >
+              Other
+            </button>
           </div>
         </div>
-        <p className="nearby-ref-hint">
-          {mode === "gps" && gpsError
-            ? gpsError
-            : `Using ${label} as reference point`}
-        </p>
+        <p className="nearby-ref-hint">{hint}</p>
+
+        {mode === "custom" && (
+          <form className="nearby-custom-form" onSubmit={handleCustomSubmit}>
+            <Search size={15} strokeWidth={1.5} className="nearby-custom-icon" aria-hidden />
+            <input
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              placeholder={custom?.address ?? "e.g. Carrer d'Avinyó, Sagrada Família…"}
+              disabled={customLoading}
+            />
+            <button type="submit" className="nearby-custom-btn" disabled={customLoading || !customInput.trim()}>
+              {customLoading ? <Loader2 size={14} className="spin" /> : "Set"}
+            </button>
+          </form>
+        )}
       </header>
 
       <div className="explore-chip-row" role="tablist" aria-label="Nearby categories">
@@ -107,7 +159,7 @@ export function NearbyView() {
                       <strong className="nearby-item-name">{item.name}</strong>
                       <span className="nearby-item-dist">
                         <MapPin size={13} strokeWidth={1.5} />
-                        {formatDistanceKm(km)} from {mode === "gps" && !gpsError ? "you" : "school"}
+                        {formatDistanceKm(km)} from {distanceFromLabel}
                       </span>
                       <span className="nearby-item-hours">
                         <Clock size={13} strokeWidth={1.5} />
