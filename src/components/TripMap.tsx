@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { Loader2, MapPin, Footprints, Minus, Plus, Radar, Trash2, WifiOff, X } from "lucide-react";
+import { Loader2, MapPin, Footprints, Minus, Navigation, Plus, Radar, Trash2, WifiOff, X } from "lucide-react";
 import L from "leaflet";
 import { EXCURSIONS } from "../data/excursions";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../data/nearby";
 import { PLACES, SCHOOL_BASE_ID, getSchoolBase, type Place, type PlaceCategory } from "../data/trip";
 import { haversineKm, formatDistanceKm } from "../../lib/geo/haversine";
+import { useGeolocation } from "../hooks/useGeolocation";
 import { useMapPins } from "../hooks/useMapPins";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import type { SavedMapPin } from "../types";
@@ -33,6 +34,7 @@ const CATEGORY_COLORS: Record<PlaceCategory, string> = {
 };
 
 const SAVED_PIN_COLOR = "#6b5080";
+const USER_LOCATION_COLOR = "#2563eb";
 
 function makeIcon(color: string) {
   return L.divIcon({
@@ -42,6 +44,13 @@ function makeIcon(color: string) {
     iconAnchor: [6, 6],
   });
 }
+
+const userLocationIcon = L.divIcon({
+  className: "leaflet-user-pin",
+  html: `<div class="leaflet-user-pin-dot" style="background:${USER_LOCATION_COLOR}"></div>`,
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
+});
 
 const icons = Object.fromEntries(
   (Object.keys(CATEGORY_COLORS) as PlaceCategory[]).map((c) => [
@@ -189,6 +198,8 @@ export function TripMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+  const userAccuracyRef = useRef<L.Circle | null>(null);
 
   const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "error">("loading");
   const [mapError, setMapError] = useState<string | null>(null);
@@ -199,6 +210,13 @@ export function TripMap() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [layers, setLayers] = useState<LayerVisibility>(DEFAULT_LAYERS);
   const [pendingFocus, setPendingFocus] = useState<ReturnType<typeof consumeMapFocus>>(null);
+
+  const {
+    position: userPosition,
+    loading: locating,
+    error: locateError,
+    refresh: refreshLocation,
+  } = useGeolocation(mapStatus === "ready");
 
   const mateoPrompt = (name: string) =>
     `Tell me about ${name} and whether it's worth adding to my Barcelona trip.`;
@@ -307,6 +325,8 @@ export function TripMap() {
       clearLeafletContainer(el, mapRef.current);
       mapRef.current = null;
       markersRef.current = null;
+      userMarkerRef.current = null;
+      userAccuracyRef.current = null;
       map = null;
     };
   }, [mapKey]);
@@ -367,6 +387,47 @@ export function TripMap() {
     }
   }, [pins, visiblePoints, mapStatus, layers, pendingFocus]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || mapStatus !== "ready") return;
+
+    if (!userPosition) {
+      userMarkerRef.current?.remove();
+      userMarkerRef.current = null;
+      userAccuracyRef.current?.remove();
+      userAccuracyRef.current = null;
+      return;
+    }
+
+    const latLng: L.LatLngExpression = [userPosition.lat, userPosition.lng];
+
+    if (!userMarkerRef.current) {
+      userMarkerRef.current = L.marker(latLng, {
+        icon: userLocationIcon,
+        zIndexOffset: 1000,
+        interactive: false,
+      }).addTo(map);
+    } else {
+      userMarkerRef.current.setLatLng(latLng);
+    }
+
+    if (userPosition.accuracy && userPosition.accuracy > 0) {
+      if (!userAccuracyRef.current) {
+        userAccuracyRef.current = L.circle(latLng, {
+          radius: userPosition.accuracy,
+          color: USER_LOCATION_COLOR,
+          weight: 1,
+          fillColor: USER_LOCATION_COLOR,
+          fillOpacity: 0.12,
+          interactive: false,
+        }).addTo(map);
+      } else {
+        userAccuracyRef.current.setLatLng(latLng);
+        userAccuracyRef.current.setRadius(userPosition.accuracy);
+      }
+    }
+  }, [userPosition, mapStatus]);
+
   const toggleLayer = (key: keyof LayerVisibility) => {
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -375,6 +436,18 @@ export function TripMap() {
     const map = mapRef.current;
     if (!map) return;
     map.setZoom(Math.min(map.getMaxZoom(), Math.max(map.getMinZoom(), map.getZoom() + delta)));
+  };
+
+  const centerOnUser = () => {
+    if (!userPosition) {
+      refreshLocation();
+      return;
+    }
+    const map = mapRef.current;
+    if (!map) return;
+    map.setView([userPosition.lat, userPosition.lng], Math.max(map.getZoom(), 15), {
+      animate: true,
+    });
   };
 
   const handleAddPlace = async (e: FormEvent) => {
@@ -525,6 +598,19 @@ export function TripMap() {
           <div className="map-zoom-controls" aria-label="Map zoom">
             <button
               type="button"
+              className={`map-zoom-btn map-zoom-btn--locate ${locating ? "map-zoom-btn--loading" : ""}`}
+              onClick={centerOnUser}
+              aria-label="Show my location"
+              title={locateError ?? "Center on your location"}
+            >
+              {locating ? (
+                <Loader2 size={18} strokeWidth={2} className="spin" />
+              ) : (
+                <Navigation size={18} strokeWidth={2} />
+              )}
+            </button>
+            <button
+              type="button"
               className="map-zoom-btn"
               onClick={() => zoomMap(1)}
               aria-label="Zoom in"
@@ -542,6 +628,14 @@ export function TripMap() {
           </div>
         )}
       </div>
+
+      {(userPosition || locateError) && (
+        <p className="map-locate-hint" role="status">
+          {userPosition
+            ? "Blue pin is your current location — tap the compass to re-center."
+            : locateError}
+        </p>
+      )}
 
       <div className="map-legend map-legend--toggle">
         <span className="map-legend-heading">Layers</span>
@@ -578,6 +672,12 @@ export function TripMap() {
           <span className="legend-dot" style={{ background: SAVED_PIN_COLOR }} />
           saved
         </button>
+        {userPosition && (
+          <span className="legend-item legend-item--static">
+            <span className="legend-dot" style={{ background: USER_LOCATION_COLOR }} />
+            you
+          </span>
+        )}
       </div>
 
       {selected && (

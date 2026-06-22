@@ -1445,6 +1445,45 @@ button, input, select, textarea { font-family: inherit; }
   background: var(--bg-deep);
 }
 
+.map-zoom-btn--locate {
+  color: #2563eb;
+}
+
+.map-zoom-btn--loading {
+  opacity: 0.7;
+}
+
+.map-locate-hint {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.legend-item--static {
+  cursor: default;
+  opacity: 1;
+}
+
+.leaflet-user-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+.leaflet-user-pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35), 0 2px 6px rgba(26, 24, 22, 0.2);
+  animation: user-pin-pulse 2s ease-in-out infinite;
+}
+
+@keyframes user-pin-pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.35), 0 2px 6px rgba(26, 24, 22, 0.2); }
+  50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.15), 0 2px 6px rgba(26, 24, 22, 0.2); }
+}
+
 .leaflet-map-host {
   position: absolute;
   inset: 0;
