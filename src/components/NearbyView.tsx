@@ -12,7 +12,7 @@ import { useLocationRef } from "../hooks/useLocationRef";
 import { useNavigation } from "../contexts/NavigationContext";
 import { openExternal, yelpUrl } from "../utils/links";
 
-const SECTION_ORDER: NearbyCategory[] = ["pilates", "markets", "shopping"];
+const SECTION_ORDER: NearbyCategory[] = ["pilates", "supermarkets", "shopping"];
 
 function sortByDistance(items: NearbyPlace[], ref: { lat: number; lng: number }) {
   return [...items].sort(
@@ -73,7 +73,7 @@ export function NearbyView() {
     <div className="nearby-view">
       <header className="nearby-hero">
         <p className="nearby-hero-sub">
-          Pilates, markets, and shopping near your base — sorted by distance.
+          Pilates, supermarkets, and shopping near your base — sorted by distance.
         </p>
         <div className="nearby-ref-bar">
           <span className="nearby-ref-label">Distance from</span>

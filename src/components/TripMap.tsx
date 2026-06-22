@@ -65,14 +65,14 @@ const nearbyIcons = Object.fromEntries(
 
 const NEARBY_LAYER_LABELS: Record<NearbyCategory, string> = {
   pilates: "pilates",
-  markets: "markets",
+  supermarkets: "supermarkets",
   shopping: "shopping",
 };
 
 type LayerVisibility = {
   itinerary: boolean;
   pilates: boolean;
-  markets: boolean;
+  supermarkets: boolean;
   shopping: boolean;
   saved: boolean;
 };
@@ -80,7 +80,7 @@ type LayerVisibility = {
 const DEFAULT_LAYERS: LayerVisibility = {
   itinerary: true,
   pilates: true,
-  markets: true,
+  supermarkets: true,
   shopping: true,
   saved: true,
 };
