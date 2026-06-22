@@ -42,6 +42,20 @@ export function wttrUrl(place: GeoPlace): string {
   return `https://wttr.in/${place.lat},${place.lng}?format=j1`;
 }
 
+/** Yelp search — opens reviews for the place in Barcelona */
+export function yelpUrl(place: GeoPlace): string {
+  const findLoc = place.address ?? `${place.lat},${place.lng}`;
+  const loc =
+    findLoc.includes("Barcelona") || findLoc.includes("Spain")
+      ? findLoc
+      : `${findLoc}, Barcelona, Spain`;
+  const params = new URLSearchParams({
+    find_desc: place.name,
+    find_loc: loc,
+  });
+  return `https://www.yelp.es/search?${params.toString()}`;
+}
+
 /**
  * Uber universal link — opens app with dropoff pre-filled.
  * @see https://developer.uber.com/docs/riders/ride-requests/tutorials/deep-links/introduction

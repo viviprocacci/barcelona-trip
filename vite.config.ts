@@ -34,6 +34,24 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,svg,woff2}"],
         runtimeCaching: [
           {
+            urlPattern: /^https:\/\/([a-d]\.)?basemaps\.cartocdn\.com\/light_all\/\d+\/\d+\/\d+/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-tiles-carto",
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/\d+\/\d+\/\d+\.png/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-tiles-osm",
+              expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",
             options: { cacheName: "google-fonts-cache", expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 } },

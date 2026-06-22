@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, MapPin, Footprints, Radar, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { Loader2, MapPin, Footprints, Minus, Plus, Radar, Trash2, WifiOff, X } from "lucide-react";
 import L from "leaflet";
 import { EXCURSIONS } from "../data/excursions";
 import {
@@ -11,6 +11,7 @@ import {
 import { PLACES, SCHOOL_BASE_ID, getSchoolBase, type Place, type PlaceCategory } from "../data/trip";
 import { haversineKm, formatDistanceKm } from "../../lib/geo/haversine";
 import { useMapPins } from "../hooks/useMapPins";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import type { SavedMapPin } from "../types";
 import { useNavigation } from "../contexts/NavigationContext";
 import { mapPlaceSearch } from "../services/mapSearch";
@@ -95,21 +96,35 @@ function clearLeafletContainer(el: LeafletContainer, map: L.Map | null) {
 }
 
 function addMapTiles(map: L.Map) {
+  const tileOpts = {
+    maxZoom: 19,
+    keepBuffer: 6,
+    updateWhenIdle: true,
+  };
+
   const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    ...tileOpts,
     attribution:
       '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
   });
 
   const carto = L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
     {
+      ...tileOpts,
+      maxZoom: 20,
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
       subdomains: "abcd",
-      maxZoom: 20,
     },
   );
+
+  const online = typeof navigator === "undefined" || navigator.onLine;
+
+  if (!online) {
+    osm.addTo(map);
+    return;
+  }
 
   let errors = 0;
   carto.on("tileerror", () => {
@@ -167,6 +182,7 @@ function findKnownPlace(query: string) {
 
 export function TripMap() {
   const school = getSchoolBase();
+  const online = useOnlineStatus();
   const { pins, loaded, addPin, removePin } = useMapPins();
   const { askMateo, consumeMapFocus } = useNavigation();
 
@@ -254,13 +270,15 @@ export function TripMap() {
 
         map = L.map(el, {
           center: MAP_CENTER,
-          zoom: 9,
+          zoom: 12,
+          minZoom: 10,
+          maxZoom: 18,
           zoomControl: false,
-          scrollWheelZoom: false,
-          doubleClickZoom: false,
+          scrollWheelZoom: true,
+          doubleClickZoom: true,
           boxZoom: false,
           keyboard: false,
-          touchZoom: false,
+          touchZoom: true,
         });
 
         addMapTiles(map);
@@ -353,8 +371,18 @@ export function TripMap() {
     setLayers((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleAddPlace = async (e: React.FormEvent) => {
+  const zoomMap = (delta: 1 | -1) => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setZoom(Math.min(map.getMaxZoom(), Math.max(map.getMinZoom(), map.getZoom() + delta)));
+  };
+
+  const handleAddPlace = async (e: FormEvent) => {
     e.preventDefault();
+    if (!online) {
+      setSearchError("Map search needs internet — pins and cached tiles still work offline.");
+      return;
+    }
     const q = searchQuery.trim();
     if (!q || searchLoading) return;
 
@@ -434,24 +462,46 @@ export function TripMap() {
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Add a place (Sagrada Família, Park Güell, La Boqueria…)"
+            placeholder={
+              online
+                ? "Add a place (Sagrada Família, Park Güell, La Boqueria…)"
+                : "Offline — can't search new places"
+            }
             aria-label="Search place to add to map"
+            disabled={!online}
           />
           <button
             type="submit"
             className="btn-scan map-search-btn"
-            disabled={searchLoading || !searchQuery.trim()}
+            disabled={searchLoading || !searchQuery.trim() || !online}
           >
             {searchLoading ? <Loader2 size={16} className="spin" /> : "Add"}
           </button>
         </form>
         <p className="map-powered-by">
-          Places geocoded with <strong>OpenStreetMap Nominatim</strong>
+          {online ? (
+            <>
+              Places geocoded with <strong>OpenStreetMap Nominatim</strong>
+            </>
+          ) : (
+            <>
+              <strong>Offline mode</strong> — cached map tiles + saved pins. Browse online first to cache streets.
+            </>
+          )}
         </p>
         {searchError && <p className="map-search-error">{searchError}</p>}
       </div>
 
-      <div className="map-wrap">
+      {!online && (
+        <div className="map-offline-banner" role="status">
+          <WifiOff size={15} strokeWidth={1.5} aria-hidden />
+          <span>
+            Offline — showing cached map tiles where available. Pan to areas you've already viewed.
+          </span>
+        </div>
+      )}
+
+      <div className={`map-wrap ${!online ? "map-wrap--offline" : ""}`}>
         {mapStatus === "loading" && <p className="map-loading">Loading map…</p>}
         {mapStatus === "error" && (
           <div className="map-loading map-loading--error">
@@ -471,6 +521,26 @@ export function TripMap() {
           className="leaflet-map-host"
           aria-label="Trip map"
         />
+        {mapStatus === "ready" && (
+          <div className="map-zoom-controls" aria-label="Map zoom">
+            <button
+              type="button"
+              className="map-zoom-btn"
+              onClick={() => zoomMap(1)}
+              aria-label="Zoom in"
+            >
+              <Plus size={18} strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              className="map-zoom-btn"
+              onClick={() => zoomMap(-1)}
+              aria-label="Zoom out"
+            >
+              <Minus size={18} strokeWidth={2} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="map-legend map-legend--toggle">

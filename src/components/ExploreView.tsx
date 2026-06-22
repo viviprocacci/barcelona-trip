@@ -24,7 +24,7 @@ import type { AiResponse } from "../services/ai";
 import { parseExploreResult } from "../../lib/ai/exploreResult";
 import type { ExploreAiStructured } from "../../lib/ai/exploreResult";
 import type { SearchType } from "../../lib/ai/search";
-import { appleMapsUrl, googleMapsDirectionsUrl, openExternal } from "../utils/links";
+import { appleMapsUrl, googleMapsDirectionsUrl, openExternal, yelpUrl } from "../utils/links";
 
 const TIER_LABEL: Record<Excursion["priceTier"], string> = {
   budget: "Budget",
@@ -581,6 +581,17 @@ function ExploreModal({
                 }
               >
                 Directions
+              </button>
+              <button
+                type="button"
+                className="ride-btn ride-btn--alt"
+                onClick={() =>
+                  openExternal(
+                    yelpUrl({ name: exc.name, lat: exc.lat!, lng: exc.lng!, address: exc.region }),
+                  )
+                }
+              >
+                Yelp
               </button>
             </>
           )}

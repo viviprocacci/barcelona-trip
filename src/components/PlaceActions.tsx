@@ -1,4 +1,4 @@
-import { Car, Cloud, Footprints, MapPin, MessageCircle, Navigation } from "lucide-react";
+import { Car, Cloud, Footprints, MapPin, MessageCircle, Navigation, Star } from "lucide-react";
 import type { GeoPlace } from "../utils/links";
 import {
   appleMapsUrl,
@@ -9,6 +9,7 @@ import {
   openRideLink,
   uberUrl,
   weatherUrl,
+  yelpUrl,
 } from "../utils/links";
 
 interface PlaceActionsProps {
@@ -23,6 +24,7 @@ export function PlaceActions({ place, compact, onAskMateo }: PlaceActionsProps) 
     { label: "Maps", icon: MapPin, url: appleMapsUrl(place), external: true },
     { label: "Drive", icon: Navigation, url: googleMapsDirectionsUrl(place), external: true },
     { label: "Weather", icon: Cloud, url: weatherUrl(place), external: true },
+    { label: "Yelp", icon: Star, url: yelpUrl(place), external: true },
   ];
 
   return (

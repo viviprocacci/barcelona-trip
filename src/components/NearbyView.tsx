@@ -10,6 +10,7 @@ import {
 import { haversineKm, formatDistanceKm } from "../../lib/geo/haversine";
 import { useLocationRef } from "../hooks/useLocationRef";
 import { useNavigation } from "../contexts/NavigationContext";
+import { openExternal, yelpUrl } from "../utils/links";
 
 const SECTION_ORDER: NearbyCategory[] = ["pilates", "markets", "shopping"];
 
@@ -149,7 +150,7 @@ export function NearbyView() {
             {items.map((item) => {
               const km = haversineKm(point, item);
               return (
-                <li key={item.id}>
+                <li key={item.id} className="nearby-card">
                   <button
                     type="button"
                     className="nearby-item"
@@ -168,8 +169,28 @@ export function NearbyView() {
                       {item.notes && <span className="nearby-item-notes">{item.notes}</span>}
                       <span className="nearby-item-address">{item.address}</span>
                     </div>
-                    <span className="nearby-item-map-link">View on map</span>
                   </button>
+                  <div className="nearby-item-actions">
+                    <button
+                      type="button"
+                      className="nearby-item-link"
+                      onClick={() =>
+                        openExternal(
+                          yelpUrl({
+                            name: item.name,
+                            lat: item.lat,
+                            lng: item.lng,
+                            address: item.address,
+                          }),
+                        )
+                      }
+                    >
+                      Yelp
+                    </button>
+                    <button type="button" className="nearby-item-link" onClick={() => openOnMap(item)}>
+                      Map
+                    </button>
+                  </div>
                 </li>
               );
             })}
